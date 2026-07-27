@@ -4,50 +4,10 @@ import pandas as pd
 # 1. 페이지 기본 설정
 st.set_page_config(page_title="CS 응대 매뉴얼 검색기", page_icon="🔍", layout="wide")
 
-# 2. 카드 형태 디자인 (CSS)
-st.markdown("""
-    <style>
-    .cs-card {
-        background-color: #f8f9fa;
-        border-left: 5px solid #0066ff;
-        padding: 18px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-    .badge {
-        background-color: #e9ecef;
-        color: #333;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.85em;
-        font-weight: bold;
-        margin-right: 5px;
-    }
-    .q-text {
-        font-size: 1.1em;
-        font-weight: bold;
-        color: #111;
-        margin-top: 8px;
-        margin-bottom: 8px;
-    }
-    .a-text {
-        font-size: 1.0em;
-        color: #222;
-        white-space: pre-wrap;
-        background-color: #ffffff;
-        padding: 12px;
-        border-radius: 6px;
-        border: 1px solid #dee2e6;
-        line-height: 1.6;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
 st.title("🔍 CS 응대 매뉴얼 검색 도우미")
-st.caption("구글 시트에 적은 매뉴얼이 실시간으로 반영되는 검색 시스템입니다.")
+st.caption("검색어를 입력하면 관련 항목이 표시됩니다. 항목을 **클릭**하면 상세 답변이 펼쳐집니다.")
 
-# ⚠️ 아래 큰따옴표 안에 구글 시트 CSV 주소를 넣어주세요!
+# ⚠️ 구글 시트 CSV 주소 (아까 넣으셨던 진짜 CSV 링크를 여기에 넣으세요!)
 GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTLIy_47IhFOZPYjwTSyEBz1FzxROrC-rbo8Yx6SM_31EPynnoqL893SQbjzzAVnLGOdu28vXFDjsx2/pub?output=csv"
 
 # 데이터 불러오기 함수 (10초마다 자동 최신화)
@@ -62,13 +22,21 @@ def load_data():
 
 df = load_data()
 
+# 구글 시트 제목이 조금 달라도 알아서 질문/답변 열을 찾아주는 스마트 함수
+def get_col_val(row, possible_names, default_val=""):
+    for col in row.index:
+        for name in possible_names:
+            if name.lower() in str(col).lower().replace(" ", ""):
+                return str(row[col])
+    return default_val
+
 if not df.empty:
-    # 검색창
-    search_query = st.text_input("💡 키워드, 단어, 질문 내용을 입력하세요", placeholder="예: 배송, 환불, 주소변경, 스크래치").strip()
+    # 상단 검색창
+    search_query = st.text_input("💡 키워드, 태그, 질문 단어를 입력하세요", placeholder="예: 정산구조, 수수료, 환불, 배송").strip()
 
     st.markdown("---")
 
-    # 검색 로직 (모든 칼럼에서 단어 검색)
+    # 검색 필터링 로직
     if search_query:
         mask = df.apply(lambda row: search_query.lower() in row.astype(str).str.lower().str.cat(sep=' '), axis=1)
         filtered_df = df[mask]
@@ -77,22 +45,21 @@ if not df.empty:
 
     st.subheader(f"📋 검색 결과 (총 {len(filtered_df)}건)")
 
-    # 카드 형태로 검색 결과 출력
+    # 📌 핵심: 클릭해서 펼쳐보는 리스트 형태로 출력
     for idx, row in filtered_df.iterrows():
-        cat_main = row.get("대분류", "기타")
-        cat_sub = row.get("소분류", "")
-        keywords = row.get("키워드", "")
-        question = row.get("고객 질문(Q)", row.get("질문", "질문 내용"))
-        answer = row.get("CS 응대 답변(A)", row.get("답변", "답변 내용"))
+        cat_main = get_col_val(row, ["대분류", "카테고리"], "일반")
+        cat_sub = get_col_val(row, ["소분류", "중분류"], "")
+        keywords = get_col_val(row, ["키워드", "태그", "tag"], "")
+        question = get_col_val(row, ["고객질문", "질문", "q"], "질문 내용")
+        answer = get_col_val(row, ["응대답변", "답변", "a"], "답변 내용")
 
-        st.markdown(f"""
-            <div class="cs-card">
-                <div>
-                    <span class="badge">📂 {cat_main}</span>
-                    <span class="badge">🏷️ {cat_sub}</span>
-                    <span style="color: #6c757d; font-size: 0.85em;">태그: {keywords}</span>
-                </div>
-                <div class="q-text">Q. {question}</div>
-                <div class="a-text">A. {answer}</div>
-            </div>
-        """, unsafe_allow_html=True)
+        # 클릭하기 전 보이는 제목 헤더
+        header_title = f"📂 [{cat_main}" + (f" > {cat_sub}] " if cat_sub else "] ") + f"Q. {question}"
+
+        # 클릭하면 펼쳐지는 박스 (st.expander)
+        with st.expander(header_title, expanded=False):
+            if keywords:
+                st.caption(f"🏷️ **연관 태그:** {keywords}")
+            st.markdown("---")
+            st.markdown("**💬 CS 응대 답변:**")
+            st.info(answer)
