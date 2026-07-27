@@ -22,14 +22,15 @@ else:
             except Exception:
                 pass
 
-# 2. 페이지 기본 설정 (브라우저 탭에 BTX 블루 로고 적용)
+# 2. 페이지 기본 설정 (사이드바 기본 열림 설정)
 st.set_page_config(
     page_title="BTX CS 응대 매뉴얼 검색", 
     page_icon=logo_img if logo_img else "🚕", 
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# 3. 고도화된 커스텀 스타일 (Pretendard 폰트 + 버튼 글자 짤림 방지 + 아이콘 보호)
+# 3. 커스텀 CSS (Pretendard 폰트 + 사이드바 세로 메뉴 전용 스타일)
 st.markdown("""
     <style>
     /* Pretendard 폰트 불러오기 및 전체 적용 */
@@ -39,7 +40,7 @@ st.markdown("""
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif !important;
     }
 
-    /* 📌 스트림릿 내장 아이콘 폰트 보호 */
+    /* 스트림릿 내장 아이콘 폰트 보호 */
     [data-testid="stIconMaterial"], 
     [data-testid="stSidebarCollapseButton"] *,
     [data-testid="stBaseButton-headerNoPadding"] *,
@@ -49,43 +50,48 @@ st.markdown("""
         font-family: 'Material Symbols Rounded', 'Material Symbols Outlined', 'StreamlitIcons' !important;
     }
 
-    /* 상단 여백 축소 */
+    /* 메인 화면 상단 여백 정돈 */
     .block-container {
         padding-top: 1.8rem !important;
         padding-bottom: 2rem !important;
         max-width: 96% !important;
     }
     
-    /* 설명글 스타일 */
+    /* 서브 설명글 스타일 */
     .sub-description {
         font-size: 1.05rem !important;
         color: #475569;
         margin-top: -10px;
-        margin-bottom: 15px;
+        margin-bottom: 20px;
     }
 
-    /* 검색창 및 카테고리 라벨(제목) 스타일 - 진한 파란색 볼드체 */
-    .stTextInput label p, .cat-label {
+    /* 검색창 라벨 스타일 */
+    .stTextInput label p {
         font-size: 1.15rem !important;
         font-weight: 700 !important;
         color: #003399 !important;
         margin-bottom: 8px;
     }
 
-    /* 📌 카테고리 버튼 내부 글자: 줄바꿈 단어 짤림 방지 및 마진 정돈 */
-    div[data-testid="stButton"] button p {
+    /* 📌 사이드바 디자인 살리기 & 세로 버튼 스타일 */
+    section[data-testid="stSidebar"] {
+        background-color: #F8FAFC;
+        border-right: 1px solid #E2E8F0;
+    }
+
+    section[data-testid="stSidebar"] div[data-testid="stButton"] button {
+        padding: 10px 14px !important;
+        margin-bottom: 4px !important;
+        border-radius: 8px !important;
+        text-align: left !important;
+    }
+
+    section[data-testid="stSidebar"] div[data-testid="stButton"] button p {
         font-size: 1.02rem !important;
         font-weight: 700 !important;
-        white-space: nowrap !important;
-        word-break: keep-all !important;
     }
 
-    div[data-testid="stButton"] button {
-        padding: 8px 4px !important;
-        margin-bottom: 6px !important;
-    }
-
-    /* 대분류/키워드 그룹 구분 헤더 (테두리 및 그림자 강조) */
+    /* 대분류 그룹 구분 헤더 */
     .category-header {
         background-color: #eff6ff;
         border-left: 5px solid #003399;
@@ -99,14 +105,14 @@ st.markdown("""
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
     }
 
-    /* 접이식 항목(Expander) 제목 스타일 */
+    /* Q&A 카드 제목 */
     div[data-testid="stExpander"] details summary p {
         font-size: 1.05rem !important;
         font-weight: 700 !important;
         color: #1e293b !important;
     }
     
-    /* 📌 답변 상자 디자인 */
+    /* 답변 상자 디자인 */
     .answer-box {
         background-color: #f8fafc;
         border-left: 4px solid #003399;
@@ -123,7 +129,7 @@ st.markdown("""
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     }
 
-    /* 표준 원형 스피너 로딩 UI */
+    /* 로딩 스피너 UI */
     .stSpinner > div {
         border-top-color: #003399 !important;
         border-width: 3px !important;
@@ -133,8 +139,9 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# 4. 헤더 타이틀
 st.title("🚕 BTX CS 응대 매뉴얼 검색")
-st.markdown("<p class='sub-description'>검색어를 입력하거나 카테고리를 선택하면 관련 항목이 정리되어 표시됩니다.</p>", unsafe_allow_html=True)
+st.markdown("<p class='sub-description'>왼쪽 메뉴에서 카테고리를 선택하거나, 키워드를 검색하면 관련 매뉴얼이 정돈되어 표시됩니다.</p>", unsafe_allow_html=True)
 
 # ⚠️ 구글 시트 CSV 주소 (채영님의 진짜 CSV 링크를 넣어주세요!)
 GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTLIy_47IhFOZPYjwTSyEBz1FzxROrC-rbo8Yx6SM_31EPynnoqL893SQbjzzAVnLGOdu28vXFDjsx2/pub?output=csv"
@@ -151,7 +158,7 @@ def load_data():
 with st.spinner("매뉴얼 데이터를 불러오는 중입니다..."):
     df = load_data()
 
-# 구글 시트 열 이름을 알아서 찾아주는 함수
+# 구글 시트 열 이름 검색 함수
 def get_col_val(row, possible_names, default_val=""):
     for col in row.index:
         for name in possible_names:
@@ -159,7 +166,7 @@ def get_col_val(row, possible_names, default_val=""):
                 return str(row[col])
     return default_val
 
-# 📌 문장별 줄바꿈 자동 처리 함수
+# 문장별 자동 줄바꿈 함수
 def format_answer_sentences(text):
     if not text:
         return ""
@@ -169,11 +176,8 @@ def format_answer_sentences(text):
     return text
 
 if not df.empty:
-    # 📌 1. 키워드 검색창
-    search_query = st.text_input(
-        "🔎 키워드, 태그, 질문 단어를 입력하세요", 
-        placeholder="예: 헤이나우, 네모택시, 가맹조건, 위약금"
-    ).strip()
+    # 📌 1. 왼쪽 사이드바 (세로 카테고리 메뉴 구성)
+    st.sidebar.header("🚕 카테고리 선택")
 
     if "selected_cat" not in st.session_state:
         st.session_state.selected_cat = "전체 카테고리"
@@ -189,25 +193,27 @@ if not df.empty:
         unique_cats = [c for c in df[main_cat_col].unique() if str(c).strip()]
         categories.extend(unique_cats)
 
-    # 📌 2. 카테고리 선택 버튼 그룹 (한 줄당 최대 8개씩 깔끔하게 2줄 이상 자동 배치)
-    st.markdown("<div class='cat-label'>🚕 카테고리 선택</div>", unsafe_allow_html=True)
-    
-    MAX_COLS_PER_ROW = 8
-    for row_start in range(0, len(categories), MAX_COLS_PER_ROW):
-        row_cats = categories[row_start : row_start + MAX_COLS_PER_ROW]
-        cols = st.columns(MAX_COLS_PER_ROW)
-        for idx, cat in enumerate(row_cats):
-            global_idx = row_start + idx
-            is_selected = (st.session_state.selected_cat == cat)
-            btn_type = "primary" if is_selected else "secondary"
-            
-            if cols[idx].button(cat, key=f"cat_btn_{global_idx}", type=btn_type, use_container_width=True):
-                st.session_state.selected_cat = cat
-                st.rerun()
+    # 사이드바 세로 버튼 목록 생성
+    for idx, cat in enumerate(categories):
+        is_selected = (st.session_state.selected_cat == cat)
+        btn_type = "primary" if is_selected else "secondary"
+        
+        # 버튼 표기를 더 예쁘게
+        display_label = f"📌 {cat}" if cat != "전체 카테고리" else "📂 전체 카테고리"
+        
+        if st.sidebar.button(display_label, key=f"side_cat_{idx}", type=btn_type, use_container_width=True):
+            st.session_state.selected_cat = cat
+            st.rerun()
+
+    # 📌 2. 메인 화면 - 키워드 검색창
+    search_query = st.text_input(
+        "🔎 키워드, 태그, 질문 단어를 입력하세요", 
+        placeholder="예: 헤이나우, 네모택시, 가맹조건, 위약금"
+    ).strip()
 
     st.markdown("---")
 
-    # 1단계: 카테고리 필터링
+    # 1단계: 사이드바 카테고리 필터링
     filtered_df = df.copy()
     if st.session_state.selected_cat != "전체 카테고리" and main_cat_col:
         filtered_df = filtered_df[filtered_df[main_cat_col] == st.session_state.selected_cat]
@@ -225,7 +231,9 @@ if not df.empty:
         filtered_df['match_score'] = scores[scores > 0]
         filtered_df = filtered_df.sort_values(by='match_score', ascending=False)
 
-    st.subheader(f"📋 검색 결과 (총 {len(filtered_df)}건)")
+    # 결과 제목 안내
+    selected_cat_name = st.session_state.selected_cat
+    st.subheader(f"📋 [{selected_cat_name}] 검색 결과 (총 {len(filtered_df)}건)")
 
     # 그룹별 노출
     if not filtered_df.empty:
@@ -255,4 +263,4 @@ if not df.empty:
                     formatted_answer = format_answer_sentences(answer)
                     st.markdown(f"<div class='answer-box'>{formatted_answer}</div>", unsafe_allow_html=True)
     else:
-        st.warning("검색 결과가 없습니다. 다른 키워드나 카테고리를 선택해 보세요.")
+        st.warning("선택하신 카테고리 또는 검색어에 대한 결과가 없습니다.")
