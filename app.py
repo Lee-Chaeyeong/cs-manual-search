@@ -5,13 +5,31 @@ import re
 # 1. 페이지 기본 설정
 st.set_page_config(page_title="BTX CS 응대 매뉴얼 검색", page_icon="🚕", layout="wide")
 
-# 2. 커스텀 스타일
+# 2. 고도화된 커스텀 스타일 (Pretendard 폰트 전면 적용 + 아이콘 폰트 깨짐 방지)
 st.markdown("""
     <style>
+    /* Pretendard 폰트 불러오기 및 전체 적용 */
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+
+    html, body, .stApp {
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif !important;
+    }
+
+    /* 📌 스트림릿 내장 아이콘 폰트 보호 (접기 버튼 <<, 돋보기, 태그 등 텍스트 깨짐 완벽 방지) */
+    [data-testid="stIconMaterial"], 
+    [data-testid="stSidebarCollapseButton"] *,
+    [data-testid="stBaseButton-headerNoPadding"] *,
+    [data-testid="stFileUploaderDropzone"] i,
+    .material-symbols-outlined,
+    .material-symbols-rounded {
+        font-family: 'Material Symbols Rounded', 'Material Symbols Outlined', 'StreamlitIcons' !important;
+    }
+
     /* 상단 여백 축소 */
     .block-container {
         padding-top: 1.8rem !important;
         padding-bottom: 2rem !important;
+        max-width: 96% !important;
     }
     
     /* 설명글 스타일 */
@@ -26,47 +44,60 @@ st.markdown("""
     .stTextInput label p, .cat-label {
         font-size: 1.15rem !important;
         font-weight: 700 !important;
-        color: #1e3a8a !important;
+        color: #003399 !important;
         margin-bottom: 8px;
     }
 
-    /* 카테고리 버튼 내부 글자: 1pt 확대 & 굵은 볼드체 */
+    /* 카테고리 버튼 내부 글자: Pretendard 굵은 볼드체 */
     div[data-testid="stButton"] button p {
         font-size: 1.08rem !important;
         font-weight: 700 !important;
     }
 
-    /* 대분류/키워드 그룹 구분 헤더 */
+    /* 대분류/키워드 그룹 구분 헤더 (테두리 및 그림자 강조) */
     .category-header {
         background-color: #eff6ff;
-        border-left: 5px solid #2563eb;
+        border-left: 5px solid #003399;
         padding: 10px 16px;
         font-size: 1.15rem;
         font-weight: 700;
-        color: #1e3a8a;
+        color: #003399;
         border-radius: 6px;
         margin-top: 25px;
         margin-bottom: 12px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
     }
 
     /* 접이식 항목(Expander) 제목 스타일 */
     div[data-testid="stExpander"] details summary p {
-        font-size: 1.02rem !important;
-        font-weight: 600 !important;
+        font-size: 1.05rem !important;
+        font-weight: 700 !important;
         color: #1e293b !important;
     }
     
-    /* 📌 답변 상자 디자인 (줄간격 시원하게 보완) */
+    /* 📌 답변 상자 디자인 (줄간격 및 카드 형태 개선) */
     .answer-box {
         background-color: #f8fafc;
-        border-left: 4px solid #2563eb;
+        border-left: 4px solid #003399;
+        border-top: 1px solid #e2e8f0;
+        border-right: 1px solid #e2e8f0;
+        border-bottom: 1px solid #e2e8f0;
         padding: 18px;
-        border-radius: 6px;
+        border-radius: 8px;
         font-size: 1.18rem;
         font-weight: 700;
-        line-height: 1.8; /* 문장 간 간격 줄바꿈 보완 */
+        line-height: 1.8;
         color: #0f172a;
         margin-top: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    }
+
+    /* 표준 원형 스피너 로딩 UI */
+    .stSpinner > div {
+        border-top-color: #003399 !important;
+        border-width: 3px !important;
+        width: 36px !important;
+        height: 36px !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -86,7 +117,8 @@ def load_data():
         st.error("구글 시트를 불러오는 중 오류가 발생했습니다. CSV 링크를 확인해 주세요.")
         return pd.DataFrame()
 
-df = load_data()
+with st.spinner("매뉴얼 데이터를 불러오는 중입니다..."):
+    df = load_data()
 
 # 구글 시트 열 이름을 알아서 찾아주는 함수
 def get_col_val(row, possible_names, default_val=""):
