@@ -7,7 +7,7 @@ st.set_page_config(page_title="CS 응대 매뉴얼 검색기", page_icon="🔍",
 st.title("🔍 CS 응대 매뉴얼 검색 도우미")
 st.caption("검색어를 입력하면 관련 항목이 표시됩니다. 항목을 **클릭**하면 상세 답변이 펼쳐집니다.")
 
-# ⚠️ 구글 시트 CSV 주소 (아까 넣으셨던 진짜 CSV 링크를 여기에 넣으세요!)
+# ⚠️ 구글 시트 CSV 주소 (채영님의 진짜 CSV 링크를 넣어주세요!)
 GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTLIy_47IhFOZPYjwTSyEBz1FzxROrC-rbo8Yx6SM_31EPynnoqL893SQbjzzAVnLGOdu28vXFDjsx2/pub?output=csv"
 
 # 데이터 불러오기 함수 (10초마다 자동 최신화)
@@ -22,7 +22,7 @@ def load_data():
 
 df = load_data()
 
-# 구글 시트 제목이 조금 달라도 알아서 질문/답변 열을 찾아주는 스마트 함수
+# 구글 시트 열 이름을 알아서 찾아주는 함수
 def get_col_val(row, possible_names, default_val=""):
     for col in row.index:
         for name in possible_names:
@@ -32,34 +32,47 @@ def get_col_val(row, possible_names, default_val=""):
 
 if not df.empty:
     # 상단 검색창
-    search_query = st.text_input("💡 키워드, 태그, 질문 단어를 입력하세요", placeholder="예: 정산구조, 수수료, 환불, 배송").strip()
+    search_query = st.text_input(
+        "💡 키워드, 태그, 질문 단어를 입력하세요 (띄어쓰기나 쉼표로 여러 키워드 검색 가능)", 
+        placeholder="예: 네모 정산구조, 환불 배송"
+    ).strip()
 
     st.markdown("---")
 
-    # 검색 필터링 로직
+    # 스마트 다중 키워드 검색 로직
     if search_query:
-        mask = df.apply(lambda row: search_query.lower() in row.astype(str).str.lower().str.cat(sep=' '), axis=1)
-        filtered_df = df[mask]
+        # 띄어쓰기나 쉼표(,) 기준으로 키워드들을 각각 분리합니다 (예: ["네모", "정산구조"])
+        keywords = [k.strip().lower() for k in search_query.replace(',', ' ').split() if k.strip()]
+
+        # 각 행에 키워드가 몇 개나 들어있는지 점수를 매깁니다.
+        def calc_score(row):
+            row_str = row.astype(str).str.lower().str.cat(sep=' ')
+            return sum(1 for k in keywords if k in row_str)
+
+        scores = df.apply(calc_score, axis=1)
+        
+        # 1개라도 키워드가 걸린 항목만 남기고, 연관성 높음(키워드 많이 겹침) 순으로 정렬합니다.
+        filtered_df = df[scores > 0].copy()
+        filtered_df['match_score'] = scores[scores > 0]
+        filtered_df = filtered_df.sort_values(by='match_score', ascending=False)
     else:
         filtered_df = df
 
     st.subheader(f"📋 검색 결과 (총 {len(filtered_df)}건)")
 
-    # 📌 핵심: 클릭해서 펼쳐보는 리스트 형태로 출력
+    # 접이식 카드로 검색 결과 출력
     for idx, row in filtered_df.iterrows():
         cat_main = get_col_val(row, ["대분류", "카테고리"], "일반")
         cat_sub = get_col_val(row, ["소분류", "중분류"], "")
-        keywords = get_col_val(row, ["키워드", "태그", "tag"], "")
+        keywords_text = get_col_val(row, ["키워드", "태그", "tag"], "")
         question = get_col_val(row, ["고객질문", "질문", "q"], "질문 내용")
         answer = get_col_val(row, ["응대답변", "답변", "a"], "답변 내용")
 
-        # 클릭하기 전 보이는 제목 헤더
         header_title = f"📂 [{cat_main}" + (f" > {cat_sub}] " if cat_sub else "] ") + f"Q. {question}"
 
-        # 클릭하면 펼쳐지는 박스 (st.expander)
         with st.expander(header_title, expanded=False):
-            if keywords:
-                st.caption(f"🏷️ **연관 태그:** {keywords}")
+            if keywords_text:
+                st.caption(f"🏷️ **연관 태그:** {keywords_text}")
             st.markdown("---")
             st.markdown("**💬 CS 응대 답변:**")
             st.info(answer)
