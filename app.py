@@ -28,22 +28,21 @@ st.markdown("""
         color: #1e3a8a !important;
     }
 
-    /* 📌 [핵심 수정] 카테고리 필터 클릭 전 상자 안 글자 */
-    div[data-baseweb="select"] * {
+    /* 📌 1. 필터 클릭 전 입력 상자 내부 글자 */
+    .stSelectbox div[data-baseweb="select"] * {
         font-size: 1.1rem !important;
         font-weight: 700 !important;
         color: #1e3a8a !important;
     }
 
-    /* 📌 [핵심 수정] 클릭 시 펼쳐지는 하위 팝업 메뉴 전체(신규, 시공, 기사앱 등) 글자 크기, 볼드체, 파란색 강력 적용 */
-    div[data-baseweb="popover"] * {
-        font-size: 1.1rem !important;
-        font-weight: 700 !important;
+    /* 📌 2. 필터 클릭 시 펼쳐지는 하위 팝업 목록 전체 (신규, 시공, 기사앱, 배차 등) 강력 적용 */
+    div[data-baseweb="popover"] [role="option"],
+    div[data-baseweb="popover"] [role="option"] *,
+    div[data-baseweb="popover"] li,
+    div[data-baseweb="popover"] li * {
         color: #1e3a8a !important;
-    }
-    div[data-baseweb="popover"] li {
-        padding-top: 10px !important;
-        padding-bottom: 10px !important;
+        font-weight: 700 !important;
+        font-size: 1.12rem !important;
     }
 
     /* 대분류/키워드 그룹 구분 헤더 */
