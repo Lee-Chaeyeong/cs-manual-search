@@ -30,7 +30,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 3. 레이아웃 고도화 커스텀 CSS (사이드바 폭 축소 + 가운데 정렬 + 라인/그림자 강화)
+# 3. 레이아웃 고도화 커스텀 CSS (사이드바 폭 축소 + 가운데 정렬 + 검색 버튼 디자인 추가)
 st.markdown("""
     <style>
     /* Pretendard 폰트 전면 적용 */
@@ -100,18 +100,28 @@ st.markdown("""
         width: 100% !important;
     }
 
-    /* 📌 3. 메인 영역 검색창 & 입력 상자 카드화 (라인 + 은은한 그림자) */
+    /* 📌 3. 메인 영역 검색창 & 입력 상자 카드화 */
     .stTextInput > div > div {
         border-radius: 10px !important;
         border: 1px solid #CBD5E1 !important;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03) !important;
     }
 
-    .stTextInput label p {
-        font-size: 1.15rem !important;
+    /* 📌 4. 메인 화면 전용 검색 버튼 스타일 (높이 및 BTX 블루 톤 맞춤) */
+    .main div[data-testid="stColumn"]:nth-child(2) div[data-testid="stButton"] button {
+        height: 44px !important;
+        border-radius: 10px !important;
+        font-size: 1.05rem !important;
         font-weight: 800 !important;
-        color: #003399 !important;
-        margin-bottom: 6px;
+        background-color: #003399 !important;
+        color: #FFFFFF !important;
+        border: none !important;
+        box-shadow: 0 2px 6px rgba(0, 51, 153, 0.2) !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .main div[data-testid="stColumn"]:nth-child(2) div[data-testid="stButton"] button:hover {
+        background-color: #002266 !important;
     }
 
     /* 서브 설명글 */
@@ -122,7 +132,7 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
-    /* 대분류 그룹 카드 헤더 (선명한 블루 테두리 + 그림자) */
+    /* 대분류 그룹 카드 헤더 */
     .category-header {
         background-color: #EFF6FF;
         border: 1px solid #BFDBFE;
@@ -137,7 +147,7 @@ st.markdown("""
         box-shadow: 0 2px 8px rgba(0, 51, 153, 0.05);
     }
 
-    /* Q&A 아코디언 카드 (명확한 라인 + 그림자) */
+    /* Q&A 아코디언 카드 */
     div[data-testid="stExpander"] {
         border: 1px solid #E2E8F0 !important;
         border-radius: 10px !important;
@@ -152,7 +162,7 @@ st.markdown("""
         color: #1E293B !important;
     }
     
-    /* 📌 4. CS 답변 상자 입체적 카드 레이아웃 */
+    /* CS 답변 상자 입체적 카드 레이아웃 */
     .answer-box {
         background-color: #F8FAFC;
         border-left: 4px solid #003399;
@@ -233,7 +243,6 @@ if not df.empty:
         unique_cats = [c for c in df[main_cat_col].unique() if str(c).strip()]
         categories.extend(unique_cats)
 
-    # 사이드바 세로 버튼 목록 생성 (아이콘 제외, 순수 카테고리 이름만 사용)
     for idx, cat in enumerate(categories):
         is_selected = (st.session_state.selected_cat == cat)
         btn_type = "primary" if is_selected else "secondary"
@@ -242,11 +251,20 @@ if not df.empty:
             st.session_state.selected_cat = cat
             st.rerun()
 
-    # 📌 2. 메인 화면 - 키워드 검색창
-    search_query = st.text_input(
-        "🔎 키워드, 태그, 질문 단어를 입력하세요", 
-        placeholder="예: 헤이나우, 네모택시, 가맹조건, 위약금"
-    ).strip()
+    # 📌 2. 메인 화면 - 키워드 검색창 + 명시적 '검색' 버튼 가로 나란히 배치
+    st.markdown("<p style='font-size: 1.15rem; font-weight: 800; color: #003399; margin-bottom: 6px;'>🔎 키워드, 태그, 질문 단어를 입력하세요</p>", unsafe_allow_html=True)
+    
+    col_search_input, col_search_btn = st.columns([5.5, 1])
+    
+    with col_search_input:
+        search_query = st.text_input(
+            "검색어 입력창", 
+            placeholder="예: 헤이나우, 네모택시, 가맹조건, 위약금",
+            label_visibility="collapsed"
+        ).strip()
+        
+    with col_search_btn:
+        search_clicked = st.button("🔍 검색", use_container_width=True)
 
     st.markdown("---")
 
@@ -255,7 +273,7 @@ if not df.empty:
     if st.session_state.selected_cat != "전체 카테고리" and main_cat_col:
         filtered_df = filtered_df[filtered_df[main_cat_col] == st.session_state.selected_cat]
 
-    # 2단계: 키워드 검색 필터링
+    # 2단계: 키워드 검색 필터링 (엔터키 또는 버튼 클릭 시 모두 작동)
     if search_query:
         keywords = [k.strip().lower() for k in search_query.replace(',', ' ').split() if k.strip()]
 
@@ -270,7 +288,10 @@ if not df.empty:
 
     # 결과 제목 안내
     selected_cat_name = st.session_state.selected_cat
-    st.subheader(f"📋 [{selected_cat_name}] 검색 결과 (총 {len(filtered_df)}건)")
+    if search_query:
+        st.subheader(f"📋 [{selected_cat_name}] '{search_query}' 검색 결과 (총 {len(filtered_df)}건)")
+    else:
+        st.subheader(f"📋 [{selected_cat_name}] 매뉴얼 목록 (총 {len(filtered_df)}건)")
 
     # 그룹별 노출
     if not filtered_df.empty:
