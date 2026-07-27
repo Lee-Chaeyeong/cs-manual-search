@@ -4,7 +4,7 @@ import pandas as pd
 # 1. 페이지 기본 설정
 st.set_page_config(page_title="BTX CS 응대 매뉴얼 검색", page_icon="🚕", layout="wide")
 
-# 2. 커스텀 스타일 (상단 여백 축소, 파란색 헤더, 답변 볼드체)
+# 2. 커스텀 스타일
 st.markdown("""
     <style>
     /* 상단 여백 축소 */
@@ -27,6 +27,12 @@ st.markdown("""
         font-weight: 700 !important;
         color: #1e3a8a !important;
         margin-bottom: 8px;
+    }
+
+    /* 📌 [요청 반영] 카테고리 버튼 내부 글자: 1pt 확대 & 굵은 볼드체 */
+    div[data-testid="stButton"] button p {
+        font-size: 1.08rem !important;
+        font-weight: 700 !important;
     }
 
     /* 대분류/키워드 그룹 구분 헤더 */
@@ -112,12 +118,11 @@ if not df.empty:
         unique_cats = [c for c in df[main_cat_col].unique() if str(c).strip()]
         categories.extend(unique_cats)
 
-    # 📌 2. 카테고리 선택 버튼 그룹 (선택된 카테고리는 파란색 볼드체로 100% 강조!)
+    # 📌 2. 카테고리 선택 버튼 그룹
     st.markdown("<div class='cat-label'>🚕 카테고리 선택</div>", unsafe_allow_html=True)
     
     cols = st.columns(len(categories))
     for idx, cat in enumerate(categories):
-        # 현재 선택된 카테고리 버튼은 파란색(primary) 강조
         is_selected = (st.session_state.selected_cat == cat)
         btn_type = "primary" if is_selected else "secondary"
         
