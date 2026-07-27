@@ -1,27 +1,41 @@
 import streamlit as st
 import pandas as pd
 
-# 1. 페이지 기본 설정
-st.set_page_config(page_title="CS 응대 매뉴얼 검색기", page_icon="🔍", layout="wide")
+# 1. 페이지 기본 설정 (웹 브라우저 탭 제목도 BTX CS 응대 매뉴얼로 변경)
+st.set_page_config(page_title="BTX CS 응대 매뉴얼", page_icon="🔍", layout="wide")
 
-# 2. 커스텀 스타일 (제목 가독성 조정 & 답변 글자 확대 및 볼드체)
+# 2. 커스텀 스타일 (상단 공백 제거, 설명글 폰트 확대, 답변 볼드체)
 st.markdown("""
     <style>
-    /* 접이식 항목(Expander) 제목 스타일: 적당하고 보기에 편한 크기 */
+    /* 📌 상단여백 싹 줄여서 위로 밀착시키기 */
+    .block-container {
+        padding-top: 1.8rem !important;
+        padding-bottom: 2rem !important;
+    }
+    
+    /* 설명글 폰트 크기 1pt 확대 및 색상 정리 */
+    .sub-description {
+        font-size: 1.05rem !important;
+        color: #475569;
+        margin-top: -10px;
+        margin-bottom: 15px;
+    }
+
+    /* 접이식 항목(Expander) 제목 스타일 */
     div[data-testid="stExpander"] details summary p {
         font-size: 1.02rem !important;
         font-weight: 600 !important;
         color: #1e293b !important;
     }
     
-    /* 답변 상자 디자인: 글자 크기 1~2pt 확대 및 볼드체 적용 */
+    /* 답변 상자 디자인 (글자 확대 & 굵은 볼드체) */
     .answer-box {
         background-color: #f8fafc;
         border-left: 4px solid #2563eb;
         padding: 16px;
         border-radius: 6px;
-        font-size: 1.18rem; /* 답변 글자 크기 확대 */
-        font-weight: 700;  /* 굵은 볼드체 */
+        font-size: 1.18rem;
+        font-weight: 700;
         line-height: 1.6;
         color: #0f172a;
         margin-top: 8px;
@@ -29,8 +43,11 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("🔍 CS 응대 매뉴얼 검색 도우미")
-st.caption("검색어를 입력하면 관련 항목이 표시됩니다. 항목을 **클릭**하면 상세 답변이 펼쳐집니다.")
+# 📌 요청하신 제목으로 변경
+st.title("🔍 BTX CS 응대 매뉴얼")
+
+# 📌 설명글 폰트 1pt 상향 적용
+st.markdown("<p class='sub-description'>검색어를 입력하면 관련 항목이 표시됩니다. 항목을 <b>클릭</b>하면 상세 답변이 펼쳐집니다.</p>", unsafe_allow_html=True)
 
 # ⚠️ 구글 시트 CSV 주소 (채영님의 진짜 CSV 링크를 넣어주세요!)
 GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTLIy_47IhFOZPYjwTSyEBz1FzxROrC-rbo8Yx6SM_31EPynnoqL893SQbjzzAVnLGOdu28vXFDjsx2/pub?output=csv"
