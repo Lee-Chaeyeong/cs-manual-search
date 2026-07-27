@@ -29,7 +29,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 3. 고도화된 커스텀 스타일 (Pretendard 폰트 전면 적용 + 아이콘 폰트 깨짐 방지)
+# 3. 고도화된 커스텀 스타일 (Pretendard 폰트 + 버튼 글자 짤림 방지 + 아이콘 보호)
 st.markdown("""
     <style>
     /* Pretendard 폰트 불러오기 및 전체 적용 */
@@ -39,7 +39,7 @@ st.markdown("""
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif !important;
     }
 
-    /* 📌 스트림릿 내장 아이콘 폰트 보호 (접기 버튼 <<, 돋보기, 태그 등 텍스트 깨짐 완벽 방지) */
+    /* 📌 스트림릿 내장 아이콘 폰트 보호 */
     [data-testid="stIconMaterial"], 
     [data-testid="stSidebarCollapseButton"] *,
     [data-testid="stBaseButton-headerNoPadding"] *,
@@ -72,10 +72,17 @@ st.markdown("""
         margin-bottom: 8px;
     }
 
-    /* 카테고리 버튼 내부 글자: Pretendard 굵은 볼드체 */
+    /* 📌 카테고리 버튼 내부 글자: 줄바꿈 단어 짤림 방지 및 마진 정돈 */
     div[data-testid="stButton"] button p {
-        font-size: 1.08rem !important;
+        font-size: 1.02rem !important;
         font-weight: 700 !important;
+        white-space: nowrap !important;
+        word-break: keep-all !important;
+    }
+
+    div[data-testid="stButton"] button {
+        padding: 8px 4px !important;
+        margin-bottom: 6px !important;
     }
 
     /* 대분류/키워드 그룹 구분 헤더 (테두리 및 그림자 강조) */
@@ -99,7 +106,7 @@ st.markdown("""
         color: #1e293b !important;
     }
     
-    /* 📌 답변 상자 디자인 (줄간격 및 카드 형태 개선) */
+    /* 📌 답변 상자 디자인 */
     .answer-box {
         background-color: #f8fafc;
         border-left: 4px solid #003399;
@@ -157,9 +164,7 @@ def format_answer_sentences(text):
     if not text:
         return ""
     text = str(text)
-    # 구글 시트 기존 줄바꿈(\n) 보존
     text = text.replace('\n', '<br>')
-    # 마침표(.), 물음표(?), 느낌표(!), 닫는 괄호 마침표().) 뒤 띄어쓰기를 자동으로 줄바꿈(<br>) 처리
     text = re.sub(r'([.?!]|\)\.)\s+', r'\1<br>', text)
     return text
 
@@ -170,11 +175,9 @@ if not df.empty:
         placeholder="예: 헤이나우, 네모택시, 가맹조건, 위약금"
     ).strip()
 
-    # 카테고리 세션 상태 초기화
     if "selected_cat" not in st.session_state:
         st.session_state.selected_cat = "전체 카테고리"
 
-    # 카테고리 목록 추출
     main_cat_col = None
     for col in df.columns:
         if any(k in str(col).lower() for k in ["대분류", "카테고리"]):
@@ -186,17 +189,21 @@ if not df.empty:
         unique_cats = [c for c in df[main_cat_col].unique() if str(c).strip()]
         categories.extend(unique_cats)
 
-    # 📌 2. 카테고리 선택 버튼 그룹
+    # 📌 2. 카테고리 선택 버튼 그룹 (한 줄당 최대 8개씩 깔끔하게 2줄 이상 자동 배치)
     st.markdown("<div class='cat-label'>🚕 카테고리 선택</div>", unsafe_allow_html=True)
     
-    cols = st.columns(len(categories))
-    for idx, cat in enumerate(categories):
-        is_selected = (st.session_state.selected_cat == cat)
-        btn_type = "primary" if is_selected else "secondary"
-        
-        if cols[idx].button(cat, key=f"cat_btn_{idx}", type=btn_type, use_container_width=True):
-            st.session_state.selected_cat = cat
-            st.rerun()
+    MAX_COLS_PER_ROW = 8
+    for row_start in range(0, len(categories), MAX_COLS_PER_ROW):
+        row_cats = categories[row_start : row_start + MAX_COLS_PER_ROW]
+        cols = st.columns(MAX_COLS_PER_ROW)
+        for idx, cat in enumerate(row_cats):
+            global_idx = row_start + idx
+            is_selected = (st.session_state.selected_cat == cat)
+            btn_type = "primary" if is_selected else "secondary"
+            
+            if cols[idx].button(cat, key=f"cat_btn_{global_idx}", type=btn_type, use_container_width=True):
+                st.session_state.selected_cat = cat
+                st.rerun()
 
     st.markdown("---")
 
@@ -245,7 +252,6 @@ if not df.empty:
                     if keywords_text:
                         st.caption(f"🏷️ **연관 태그:** {keywords_text}")
                     st.markdown("**💡 CS 응대 답변:**")
-                    # 📌 문장별 줄바꿈 자동 적용
                     formatted_answer = format_answer_sentences(answer)
                     st.markdown(f"<div class='answer-box'>{formatted_answer}</div>", unsafe_allow_html=True)
     else:
