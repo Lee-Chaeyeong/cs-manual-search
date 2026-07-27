@@ -2,9 +2,9 @@ import streamlit as st
 import pandas as pd
 
 # 1. 페이지 기본 설정
-st.set_page_config(page_title="BTX CS 응대 매뉴얼 검색", page_icon="🔍", layout="wide")
+st.set_page_config(page_title="BTX CS 응대 매뉴얼 검색", page_icon="🚕", layout="wide")
 
-# 2. 커스텀 스타일 (상단 여백 축소, 카테고리 헤더, 답변 볼드체 적용)
+# 2. 커스텀 스타일
 st.markdown("""
     <style>
     /* 상단 여백 축소 */
@@ -19,6 +19,13 @@ st.markdown("""
         color: #475569;
         margin-top: -10px;
         margin-bottom: 15px;
+    }
+
+    /* 📌 검색창 및 필터 라벨(제목) 스타일 - 파란색, 크기 확대, 볼드체 */
+    .stTextInput label p, .stSelectbox label p {
+        font-size: 1.15rem !important;
+        font-weight: 700 !important;
+        color: #1e3a8a !important; /* 아래 대분류 헤더와 동일한 파란색 */
     }
 
     /* 대분류/키워드 그룹 구분 헤더 */
@@ -41,7 +48,7 @@ st.markdown("""
         color: #1e293b !important;
     }
     
-    /* 답변 상자 디자인 (글자 확대 & 굵은 볼드체) */
+    /* 답변 상자 디자인 */
     .answer-box {
         background-color: #f8fafc;
         border-left: 4px solid #2563eb;
@@ -56,8 +63,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 📌 1. 요청하신 제목으로 변경
-st.title("🔍 BTX CS 응대 매뉴얼 검색")
+st.title("🚕 BTX CS 응대 매뉴얼 검색")
 
 st.markdown("<p class='sub-description'>검색어를 입력하거나 카테고리를 선택하면 관련 항목이 정리되어 표시됩니다.</p>", unsafe_allow_html=True)
 
@@ -84,10 +90,8 @@ def get_col_val(row, possible_names, default_val=""):
     return default_val
 
 if not df.empty:
-    # 📌 3. 한눈에 찾기 쉽도록 검색창과 카테고리 필터 분리
     col_search, col_filter = st.columns([3, 1])
     
-    # 대분류 칼럼 이름 찾기
     main_cat_col = None
     for col in df.columns:
         if any(k in str(col).lower() for k in ["대분류", "카테고리"]):
@@ -100,14 +104,13 @@ if not df.empty:
         categories.extend(unique_cats)
 
     with col_search:
-        # 📌 2. 실제 매뉴얼 키워드로 회색 예시문 수정
         search_query = st.text_input(
-            "💡 키워드, 태그, 질문 단어를 입력하세요", 
+            "🔎 키워드, 태그, 질문 단어를 입력하세요", 
             placeholder="예: 헤이나우, 네모택시, 가맹조건, 위약금"
         ).strip()
         
     with col_filter:
-        selected_cat = st.selectbox("📂 카테고리 필터", categories)
+        selected_cat = st.selectbox("🚕 카테고리 필터", categories)
 
     st.markdown("---")
 
@@ -131,7 +134,7 @@ if not df.empty:
 
     st.subheader(f"📋 검색 결과 (총 {len(filtered_df)}건)")
 
-    # 📌 3. 키워드/대분류 그룹별로 섹션을 나누어 깔끔하게 노출
+    # 그룹별 노출
     if not filtered_df.empty:
         grouped = {}
         for idx, row in filtered_df.iterrows():
@@ -141,8 +144,7 @@ if not df.empty:
             grouped[cat_main].append(row)
 
         for cat_name, rows in grouped.items():
-            # 카테고리 파란색 구분 헤더
-            st.markdown(f"<div class='category-header'>📂 {cat_name} ({len(rows)}건)</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='category-header'>🚕 {cat_name} ({len(rows)}건)</div>", unsafe_allow_html=True)
             
             for row in rows:
                 cat_sub = get_col_val(row, ["소분류", "중분류"], "")
@@ -151,12 +153,12 @@ if not df.empty:
                 answer = get_col_val(row, ["응대답변", "답변", "a"], "답변 내용")
 
                 sub_tag = f"[{cat_sub}] " if cat_sub else ""
-                header_title = f"📌 {sub_tag}Q. {question}"
+                header_title = f"💬 {sub_tag}Q. {question}"
 
                 with st.expander(header_title, expanded=False):
                     if keywords_text:
                         st.caption(f"🏷️ **연관 태그:** {keywords_text}")
-                    st.markdown("**💬 CS 응대 답변:**")
+                    st.markdown("**💡 CS 응대 답변:**")
                     st.markdown(f"<div class='answer-box'>{answer}</div>", unsafe_allow_html=True)
     else:
         st.warning("검색 결과가 없습니다. 다른 키워드나 카테고리를 선택해 보세요.")
