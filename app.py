@@ -21,11 +21,26 @@ st.markdown("""
         margin-bottom: 15px;
     }
 
-    /* 📌 검색창 및 필터 라벨(제목) 스타일 - 파란색, 크기 확대, 볼드체 */
+    /* 검색창 및 필터 라벨(제목) 스타일 */
     .stTextInput label p, .stSelectbox label p {
         font-size: 1.15rem !important;
         font-weight: 700 !important;
-        color: #1e3a8a !important; /* 아래 대분류 헤더와 동일한 파란색 */
+        color: #1e3a8a !important;
+    }
+
+    /* 📌 [신규 추가] 카테고리 필터 클릭 시 펼쳐지는 하위 항목(드롭다운 리스트) 글자 크기, 볼드체, 색상 상향 */
+    div[data-baseweb="select"] div {
+        font-size: 1.08rem !important;
+        font-weight: 700 !important;
+        color: #1e3a8a !important;
+    }
+
+    ul[data-testid="stSelectboxVirtualDropdown"] li, li[role="option"] {
+        font-size: 1.08rem !important;
+        font-weight: 700 !important;
+        color: #1e3a8a !important;
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
     }
 
     /* 대분류/키워드 그룹 구분 헤더 */
