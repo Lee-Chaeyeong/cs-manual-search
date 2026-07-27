@@ -4,6 +4,30 @@ import pandas as pd
 # 1. 페이지 기본 설정
 st.set_page_config(page_title="CS 응대 매뉴얼 검색기", page_icon="🔍", layout="wide")
 
+# 2. 커스텀 스타일 (글자 크기 키우기 및 볼드체 적용)
+st.markdown("""
+    <style>
+    /* 접이식 항목(Expander) 제목 스타일: 글자 크기 확대 & 굵게 */
+    div[data-testid="stExpander"] details summary p {
+        font-size: 1.15rem !important;
+        font-weight: 700 !important;
+        color: #1e293b !important;
+    }
+    
+    /* 답변 상자 디자인 */
+    .answer-box {
+        background-color: #f8fafc;
+        border-left: 4px solid #2563eb;
+        padding: 16px;
+        border-radius: 6px;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        color: #0f172a;
+        margin-top: 8px;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 st.title("🔍 CS 응대 매뉴얼 검색 도우미")
 st.caption("검색어를 입력하면 관련 항목이 표시됩니다. 항목을 **클릭**하면 상세 답변이 펼쳐집니다.")
 
@@ -41,17 +65,13 @@ if not df.empty:
 
     # 스마트 다중 키워드 검색 로직
     if search_query:
-        # 띄어쓰기나 쉼표(,) 기준으로 키워드들을 각각 분리합니다 (예: ["네모", "정산구조"])
         keywords = [k.strip().lower() for k in search_query.replace(',', ' ').split() if k.strip()]
 
-        # 각 행에 키워드가 몇 개나 들어있는지 점수를 매깁니다.
         def calc_score(row):
             row_str = row.astype(str).str.lower().str.cat(sep=' ')
             return sum(1 for k in keywords if k in row_str)
 
         scores = df.apply(calc_score, axis=1)
-        
-        # 1개라도 키워드가 걸린 항목만 남기고, 연관성 높음(키워드 많이 겹침) 순으로 정렬합니다.
         filtered_df = df[scores > 0].copy()
         filtered_df['match_score'] = scores[scores > 0]
         filtered_df = filtered_df.sort_values(by='match_score', ascending=False)
@@ -68,11 +88,11 @@ if not df.empty:
         question = get_col_val(row, ["고객질문", "질문", "q"], "질문 내용")
         answer = get_col_val(row, ["응대답변", "답변", "a"], "답변 내용")
 
-        header_title = f"📂 [{cat_main}" + (f" > {cat_sub}] " if cat_sub else "] ") + f"Q. {question}"
+        # 📌 아이콘으로 변경 및 제목 구성
+        header_title = f"📌 [{cat_main}" + (f" > {cat_sub}] " if cat_sub else "] ") + f"Q. {question}"
 
         with st.expander(header_title, expanded=False):
             if keywords_text:
                 st.caption(f"🏷️ **연관 태그:** {keywords_text}")
-            st.markdown("---")
             st.markdown("**💬 CS 응대 답변:**")
-            st.info(answer)
+            st.markdown(f"<div class='answer-box'>{answer}</div>", unsafe_allow_html=True)
