@@ -48,7 +48,7 @@ st.title("🔍 CS 응대 매뉴얼 검색 도우미")
 st.caption("구글 시트에 적은 매뉴얼이 실시간으로 반영되는 검색 시스템입니다.")
 
 # ⚠️ 아래 큰따옴표 안에 구글 시트 CSV 주소를 넣어주세요!
-GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTLIy_47IhFOZPYjwTSyEBz1FzxROrC-rbo8Yx6SM_31EPynnoqL893SQbjzzAVnLGOdu28vXFDjsx2/pubhtml"
+GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTLIy_47IhFOZPYjwTSyEBz1FzxROrC-rbo8Yx6SM_31EPynnoqL893SQbjzzAVnLGOdu28vXFDjsx2/pub?output=csv"
 
 # 데이터 불러오기 함수 (10초마다 자동 최신화)
 @st.cache_data(ttl=10)
