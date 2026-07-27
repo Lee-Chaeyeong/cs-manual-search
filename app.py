@@ -4,23 +4,24 @@ import pandas as pd
 # 1. 페이지 기본 설정
 st.set_page_config(page_title="CS 응대 매뉴얼 검색기", page_icon="🔍", layout="wide")
 
-# 2. 커스텀 스타일 (글자 크기 키우기 및 볼드체 적용)
+# 2. 커스텀 스타일 (제목 가독성 조정 & 답변 글자 확대 및 볼드체)
 st.markdown("""
     <style>
-    /* 접이식 항목(Expander) 제목 스타일: 글자 크기 확대 & 굵게 */
+    /* 접이식 항목(Expander) 제목 스타일: 적당하고 보기에 편한 크기 */
     div[data-testid="stExpander"] details summary p {
-        font-size: 1.15rem !important;
-        font-weight: 700 !important;
+        font-size: 1.02rem !important;
+        font-weight: 600 !important;
         color: #1e293b !important;
     }
     
-    /* 답변 상자 디자인 */
+    /* 답변 상자 디자인: 글자 크기 1~2pt 확대 및 볼드체 적용 */
     .answer-box {
         background-color: #f8fafc;
         border-left: 4px solid #2563eb;
         padding: 16px;
         border-radius: 6px;
-        font-size: 1.05rem;
+        font-size: 1.18rem; /* 답변 글자 크기 확대 */
+        font-weight: 700;  /* 굵은 볼드체 */
         line-height: 1.6;
         color: #0f172a;
         margin-top: 8px;
@@ -32,7 +33,7 @@ st.title("🔍 CS 응대 매뉴얼 검색 도우미")
 st.caption("검색어를 입력하면 관련 항목이 표시됩니다. 항목을 **클릭**하면 상세 답변이 펼쳐집니다.")
 
 # ⚠️ 구글 시트 CSV 주소 (채영님의 진짜 CSV 링크를 넣어주세요!)
-GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTLIy_47IhFOZPYjwTSyEBz1FzxROrC-rbo8Yx6SM_31EPynnoqL893SQbjzzAVnLGOdu28vXFDjsx2/pub?output=csv"
+GOOGLE_SHEET_CSV_URL = "여기에_구글시트_CSV_링크를_넣어주세요"
 
 # 데이터 불러오기 함수 (10초마다 자동 최신화)
 @st.cache_data(ttl=10)
@@ -88,7 +89,6 @@ if not df.empty:
         question = get_col_val(row, ["고객질문", "질문", "q"], "질문 내용")
         answer = get_col_val(row, ["응대답변", "답변", "a"], "답변 내용")
 
-        # 📌 아이콘으로 변경 및 제목 구성
         header_title = f"📌 [{cat_main}" + (f" > {cat_sub}] " if cat_sub else "] ") + f"Q. {question}"
 
         with st.expander(header_title, expanded=False):
