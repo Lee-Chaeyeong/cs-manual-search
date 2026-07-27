@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import re
 
 # 1. 페이지 기본 설정
 st.set_page_config(page_title="BTX CS 응대 매뉴얼 검색", page_icon="🚕", layout="wide")
@@ -29,7 +30,7 @@ st.markdown("""
         margin-bottom: 8px;
     }
 
-    /* 📌 [요청 반영] 카테고리 버튼 내부 글자: 1pt 확대 & 굵은 볼드체 */
+    /* 카테고리 버튼 내부 글자: 1pt 확대 & 굵은 볼드체 */
     div[data-testid="stButton"] button p {
         font-size: 1.08rem !important;
         font-weight: 700 !important;
@@ -55,15 +56,15 @@ st.markdown("""
         color: #1e293b !important;
     }
     
-    /* 답변 상자 디자인 */
+    /* 📌 답변 상자 디자인 (줄간격 시원하게 보완) */
     .answer-box {
         background-color: #f8fafc;
         border-left: 4px solid #2563eb;
-        padding: 16px;
+        padding: 18px;
         border-radius: 6px;
         font-size: 1.18rem;
         font-weight: 700;
-        line-height: 1.6;
+        line-height: 1.8; /* 문장 간 간격 줄바꿈 보완 */
         color: #0f172a;
         margin-top: 8px;
     }
@@ -94,6 +95,17 @@ def get_col_val(row, possible_names, default_val=""):
             if name.lower() in str(col).lower().replace(" ", ""):
                 return str(row[col])
     return default_val
+
+# 📌 문장별 줄바꿈 자동 처리 함수
+def format_answer_sentences(text):
+    if not text:
+        return ""
+    text = str(text)
+    # 구글 시트 기존 줄바꿈(\n) 보존
+    text = text.replace('\n', '<br>')
+    # 마침표(.), 물음표(?), 느낌표(!), 닫는 괄호 마침표().) 뒤 띄어쓰기를 자동으로 줄바꿈(<br>) 처리
+    text = re.sub(r'([.?!]|\)\.)\s+', r'\1<br>', text)
+    return text
 
 if not df.empty:
     # 📌 1. 키워드 검색창
@@ -177,6 +189,8 @@ if not df.empty:
                     if keywords_text:
                         st.caption(f"🏷️ **연관 태그:** {keywords_text}")
                     st.markdown("**💡 CS 응대 답변:**")
-                    st.markdown(f"<div class='answer-box'>{answer}</div>", unsafe_allow_html=True)
+                    # 📌 문장별 줄바꿈 자동 적용
+                    formatted_answer = format_answer_sentences(answer)
+                    st.markdown(f"<div class='answer-box'>{formatted_answer}</div>", unsafe_allow_html=True)
     else:
         st.warning("검색 결과가 없습니다. 다른 키워드나 카테고리를 선택해 보세요.")
