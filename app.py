@@ -4,7 +4,7 @@ import pandas as pd
 # 1. 페이지 기본 설정
 st.set_page_config(page_title="BTX CS 응대 매뉴얼 검색", page_icon="🚕", layout="wide")
 
-# 2. 커스텀 스타일
+# 2. 커스텀 스타일 (상단 여백 축소, 파란색 헤더, 답변 볼드체)
 st.markdown("""
     <style>
     /* 상단 여백 축소 */
@@ -21,28 +21,12 @@ st.markdown("""
         margin-bottom: 15px;
     }
 
-    /* 검색창 및 필터 라벨(제목) 스타일 */
-    .stTextInput label p, .stSelectbox label p {
+    /* 검색창 및 카테고리 라벨(제목) 스타일 - 진한 파란색 볼드체 */
+    .stTextInput label p, .cat-label {
         font-size: 1.15rem !important;
         font-weight: 700 !important;
         color: #1e3a8a !important;
-    }
-
-    /* 📌 1. 필터 클릭 전 입력 상자 내부 글자 */
-    .stSelectbox div[data-baseweb="select"] * {
-        font-size: 1.1rem !important;
-        font-weight: 700 !important;
-        color: #1e3a8a !important;
-    }
-
-    /* 📌 2. 필터 클릭 시 펼쳐지는 하위 팝업 목록 전체 (신규, 시공, 기사앱, 배차 등) 강력 적용 */
-    div[data-baseweb="popover"] [role="option"],
-    div[data-baseweb="popover"] [role="option"] *,
-    div[data-baseweb="popover"] li,
-    div[data-baseweb="popover"] li * {
-        color: #1e3a8a !important;
-        font-weight: 700 !important;
-        font-size: 1.12rem !important;
+        margin-bottom: 8px;
     }
 
     /* 대분류/키워드 그룹 구분 헤더 */
@@ -81,7 +65,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("🚕 BTX CS 응대 매뉴얼 검색")
-
 st.markdown("<p class='sub-description'>검색어를 입력하거나 카테고리를 선택하면 관련 항목이 정리되어 표시됩니다.</p>", unsafe_allow_html=True)
 
 # ⚠️ 구글 시트 CSV 주소 (채영님의 진짜 CSV 링크를 넣어주세요!)
@@ -107,8 +90,17 @@ def get_col_val(row, possible_names, default_val=""):
     return default_val
 
 if not df.empty:
-    col_search, col_filter = st.columns([3, 1])
-    
+    # 📌 1. 키워드 검색창
+    search_query = st.text_input(
+        "🔎 키워드, 태그, 질문 단어를 입력하세요", 
+        placeholder="예: 헤이나우, 네모택시, 가맹조건, 위약금"
+    ).strip()
+
+    # 카테고리 세션 상태 초기화
+    if "selected_cat" not in st.session_state:
+        st.session_state.selected_cat = "전체 카테고리"
+
+    # 카테고리 목록 추출
     main_cat_col = None
     for col in df.columns:
         if any(k in str(col).lower() for k in ["대분류", "카테고리"]):
@@ -120,21 +112,25 @@ if not df.empty:
         unique_cats = [c for c in df[main_cat_col].unique() if str(c).strip()]
         categories.extend(unique_cats)
 
-    with col_search:
-        search_query = st.text_input(
-            "🔎 키워드, 태그, 질문 단어를 입력하세요", 
-            placeholder="예: 헤이나우, 네모택시, 가맹조건, 위약금"
-        ).strip()
+    # 📌 2. 카테고리 선택 버튼 그룹 (선택된 카테고리는 파란색 볼드체로 100% 강조!)
+    st.markdown("<div class='cat-label'>🚕 카테고리 선택</div>", unsafe_allow_html=True)
+    
+    cols = st.columns(len(categories))
+    for idx, cat in enumerate(categories):
+        # 현재 선택된 카테고리 버튼은 파란색(primary) 강조
+        is_selected = (st.session_state.selected_cat == cat)
+        btn_type = "primary" if is_selected else "secondary"
         
-    with col_filter:
-        selected_cat = st.selectbox("🚕 카테고리 필터", categories)
+        if cols[idx].button(cat, key=f"cat_btn_{idx}", type=btn_type, use_container_width=True):
+            st.session_state.selected_cat = cat
+            st.rerun()
 
     st.markdown("---")
 
     # 1단계: 카테고리 필터링
     filtered_df = df.copy()
-    if selected_cat != "전체 카테고리" and main_cat_col:
-        filtered_df = filtered_df[filtered_df[main_cat_col] == selected_cat]
+    if st.session_state.selected_cat != "전체 카테고리" and main_cat_col:
+        filtered_df = filtered_df[filtered_df[main_cat_col] == st.session_state.selected_cat]
 
     # 2단계: 키워드 검색 필터링
     if search_query:
