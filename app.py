@@ -1,11 +1,35 @@
 import streamlit as st
 import pandas as pd
 import re
+import os
+from PIL import Image
 
-# 1. 페이지 기본 설정
-st.set_page_config(page_title="BTX CS 응대 매뉴얼 검색", page_icon="🚕", layout="wide")
+# 1. 브라우저 탭 파비콘용 블루 로고 로딩
+logo_img = None
+logo_filename = "20251218 PNG 축약형 로고_블루.png"
 
-# 2. 고도화된 커스텀 스타일 (Pretendard 폰트 전면 적용 + 아이콘 폰트 깨짐 방지)
+if os.path.exists(logo_filename):
+    try:
+        logo_img = Image.open(logo_filename)
+    except Exception:
+        logo_img = None
+else:
+    for f in os.listdir('.'):
+        if f.lower().endswith('.png'):
+            try:
+                logo_img = Image.open(f)
+                break
+            except Exception:
+                pass
+
+# 2. 페이지 기본 설정 (브라우저 탭에 BTX 블루 로고 적용)
+st.set_page_config(
+    page_title="BTX CS 응대 매뉴얼 검색", 
+    page_icon=logo_img if logo_img else "🚕", 
+    layout="wide"
+)
+
+# 3. 고도화된 커스텀 스타일 (Pretendard 폰트 전면 적용 + 아이콘 폰트 깨짐 방지)
 st.markdown("""
     <style>
     /* Pretendard 폰트 불러오기 및 전체 적용 */
