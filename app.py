@@ -22,7 +22,7 @@ else:
             except Exception:
                 pass
 
-# 2. 페이지 기본 설정 (사이드바 기본 열림 설정)
+# 2. 페이지 기본 설정
 st.set_page_config(
     page_title="BTX CS 응대 매뉴얼 검색", 
     page_icon=logo_img if logo_img else "🚕", 
@@ -30,10 +30,10 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 3. 커스텀 CSS (Pretendard 폰트 + 사이드바 세로 메뉴 전용 스타일)
+# 3. 레이아웃 고도화 커스텀 CSS (사이드바 폭 축소 + 가운데 정렬 + 라인/그림자 강화)
 st.markdown("""
     <style>
-    /* Pretendard 폰트 불러오기 및 전체 적용 */
+    /* Pretendard 폰트 전면 적용 */
     @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
 
     html, body, .stApp {
@@ -50,14 +50,71 @@ st.markdown("""
         font-family: 'Material Symbols Rounded', 'Material Symbols Outlined', 'StreamlitIcons' !important;
     }
 
-    /* 메인 화면 상단 여백 정돈 */
+    /* 메인 화면 여백 및 배경 정돈 */
     .block-container {
         padding-top: 1.8rem !important;
         padding-bottom: 2rem !important;
         max-width: 96% !important;
     }
-    
-    /* 서브 설명글 스타일 */
+
+    /* 📌 1. 왼쪽 사이드바 폭 축소 및 디자인 정돈 */
+    [data-testid="stSidebar"] {
+        min-width: 230px !important;
+        max-width: 240px !important;
+        background-color: #F8FAFC !important;
+        border-right: 1px solid #E2E8F0 !important;
+    }
+
+    [data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
+        padding-left: 0.8rem !important;
+        padding-right: 0.8rem !important;
+    }
+
+    /* 사이드바 제목 디자인 */
+    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
+        font-size: 1.15rem !important;
+        font-weight: 800 !important;
+        color: #003399 !important;
+        text-align: center !important;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #E2E8F0;
+        margin-bottom: 12px !important;
+    }
+
+    /* 📌 2. 사이드바 버튼: 아이콘 없이 순수 글자만 '가운데 정렬' */
+    section[data-testid="stSidebar"] div[data-testid="stButton"] button {
+        padding: 9px 10px !important;
+        margin-bottom: 5px !important;
+        border-radius: 8px !important;
+        text-align: center !important;
+        justify-content: center !important;
+        border: 1px solid #E2E8F0 !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+        transition: all 0.2s ease !important;
+    }
+
+    section[data-testid="stSidebar"] div[data-testid="stButton"] button p {
+        font-size: 1rem !important;
+        font-weight: 700 !important;
+        text-align: center !important;
+        width: 100% !important;
+    }
+
+    /* 📌 3. 메인 영역 검색창 & 입력 상자 카드화 (라인 + 은은한 그림자) */
+    .stTextInput > div > div {
+        border-radius: 10px !important;
+        border: 1px solid #CBD5E1 !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03) !important;
+    }
+
+    .stTextInput label p {
+        font-size: 1.15rem !important;
+        font-weight: 800 !important;
+        color: #003399 !important;
+        margin-bottom: 6px;
+    }
+
+    /* 서브 설명글 */
     .sub-description {
         font-size: 1.05rem !important;
         color: #475569;
@@ -65,68 +122,51 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
-    /* 검색창 라벨 스타일 */
-    .stTextInput label p {
-        font-size: 1.15rem !important;
-        font-weight: 700 !important;
-        color: #003399 !important;
-        margin-bottom: 8px;
-    }
-
-    /* 📌 사이드바 디자인 살리기 & 세로 버튼 스타일 */
-    section[data-testid="stSidebar"] {
-        background-color: #F8FAFC;
-        border-right: 1px solid #E2E8F0;
-    }
-
-    section[data-testid="stSidebar"] div[data-testid="stButton"] button {
-        padding: 10px 14px !important;
-        margin-bottom: 4px !important;
-        border-radius: 8px !important;
-        text-align: left !important;
-    }
-
-    section[data-testid="stSidebar"] div[data-testid="stButton"] button p {
-        font-size: 1.02rem !important;
-        font-weight: 700 !important;
-    }
-
-    /* 대분류 그룹 구분 헤더 */
+    /* 대분류 그룹 카드 헤더 (선명한 블루 테두리 + 그림자) */
     .category-header {
-        background-color: #eff6ff;
+        background-color: #EFF6FF;
+        border: 1px solid #BFDBFE;
         border-left: 5px solid #003399;
         padding: 10px 16px;
         font-size: 1.15rem;
-        font-weight: 700;
+        font-weight: 800;
         color: #003399;
-        border-radius: 6px;
+        border-radius: 8px;
         margin-top: 25px;
         margin-bottom: 12px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        box-shadow: 0 2px 8px rgba(0, 51, 153, 0.05);
     }
 
-    /* Q&A 카드 제목 */
+    /* Q&A 아코디언 카드 (명확한 라인 + 그림자) */
+    div[data-testid="stExpander"] {
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 10px !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02) !important;
+        background-color: #FFFFFF !important;
+        margin-bottom: 10px !important;
+    }
+
     div[data-testid="stExpander"] details summary p {
         font-size: 1.05rem !important;
         font-weight: 700 !important;
-        color: #1e293b !important;
+        color: #1E293B !important;
     }
     
-    /* 답변 상자 디자인 */
+    /* 📌 4. CS 답변 상자 입체적 카드 레이아웃 */
     .answer-box {
-        background-color: #f8fafc;
+        background-color: #F8FAFC;
         border-left: 4px solid #003399;
-        border-top: 1px solid #e2e8f0;
-        border-right: 1px solid #e2e8f0;
-        border-bottom: 1px solid #e2e8f0;
-        padding: 18px;
+        border-top: 1px solid #E2E8F0;
+        border-right: 1px solid #E2E8F0;
+        border-bottom: 1px solid #E2E8F0;
+        padding: 18px 20px;
         border-radius: 8px;
-        font-size: 1.18rem;
+        font-size: 1.15rem;
         font-weight: 700;
         line-height: 1.8;
-        color: #0f172a;
-        margin-top: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        color: #0F172A;
+        margin-top: 10px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
     }
 
     /* 로딩 스피너 UI */
@@ -176,8 +216,8 @@ def format_answer_sentences(text):
     return text
 
 if not df.empty:
-    # 📌 1. 왼쪽 사이드바 (세로 카테고리 메뉴 구성)
-    st.sidebar.header("🚕 카테고리 선택")
+    # 📌 1. 왼쪽 사이드바 (세로 카테고리 메뉴 - 순수 글자 & 가운데 정렬)
+    st.sidebar.header("카테고리 선택")
 
     if "selected_cat" not in st.session_state:
         st.session_state.selected_cat = "전체 카테고리"
@@ -193,15 +233,12 @@ if not df.empty:
         unique_cats = [c for c in df[main_cat_col].unique() if str(c).strip()]
         categories.extend(unique_cats)
 
-    # 사이드바 세로 버튼 목록 생성
+    # 사이드바 세로 버튼 목록 생성 (아이콘 제외, 순수 카테고리 이름만 사용)
     for idx, cat in enumerate(categories):
         is_selected = (st.session_state.selected_cat == cat)
         btn_type = "primary" if is_selected else "secondary"
         
-        # 버튼 표기를 더 예쁘게
-        display_label = f"📌 {cat}" if cat != "전체 카테고리" else "📂 전체 카테고리"
-        
-        if st.sidebar.button(display_label, key=f"side_cat_{idx}", type=btn_type, use_container_width=True):
+        if st.sidebar.button(cat, key=f"side_cat_{idx}", type=btn_type, use_container_width=True):
             st.session_state.selected_cat = cat
             st.rerun()
 
