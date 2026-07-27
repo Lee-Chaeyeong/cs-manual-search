@@ -33,7 +33,7 @@ st.title("🔍 CS 응대 매뉴얼 검색 도우미")
 st.caption("검색어를 입력하면 관련 항목이 표시됩니다. 항목을 **클릭**하면 상세 답변이 펼쳐집니다.")
 
 # ⚠️ 구글 시트 CSV 주소 (채영님의 진짜 CSV 링크를 넣어주세요!)
-GOOGLE_SHEET_CSV_URL = "여기에_구글시트_CSV_링크를_넣어주세요"
+GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTLIy_47IhFOZPYjwTSyEBz1FzxROrC-rbo8Yx6SM_31EPynnoqL893SQbjzzAVnLGOdu28vXFDjsx2/pub?output=csv"
 
 # 데이터 불러오기 함수 (10초마다 자동 최신화)
 @st.cache_data(ttl=10)
