@@ -30,7 +30,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 3. 레이아웃 고도화 CSS (빨간색 -> 찐파란색 변경 + 소분류 전용 스타일)
+# 3. 레이아웃 고도화 CSS (대분류 vs 소분류 완벽 시각적 구분)
 st.markdown("""
     <style>
     /* Pretendard 폰트 전면 적용 */
@@ -57,7 +57,7 @@ st.markdown("""
         max-width: 96% !important;
     }
 
-    /* 사이드바 폭 및 디자인 정돈 */
+    /* 사이드바 폭 및 배경 */
     [data-testid="stSidebar"] {
         min-width: 250px !important;
         max-width: 260px !important;
@@ -70,7 +70,7 @@ st.markdown("""
         padding-right: 0.8rem !important;
     }
 
-    /* 사이드바 대분류 헤더 */
+    /* 사이드바 제목 */
     [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
         font-size: 1.15rem !important;
         font-weight: 800 !important;
@@ -81,62 +81,62 @@ st.markdown("""
         margin-bottom: 12px !important;
     }
 
-    /* 📌 1. 대분류 기본 및 선택(Primary) 버튼 스타일 (빨간색 -> 찐파란색 #003399) */
-    section[data-testid="stSidebar"] div[data-testid="stButton"] button {
+    /* 📌 1. 대분류 버튼 스타일 (사이드바 기본 버튼) */
+    section[data-testid="stSidebar"] > div div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"] > div[data-testid="stButton"] > button {
         padding: 9px 10px !important;
-        margin-bottom: 4px !important;
+        margin-bottom: 2px !important;
         border-radius: 8px !important;
-        text-align: center !important;
-        justify-content: center !important;
         border: 1px solid #CBD5E1 !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
-        transition: all 0.2s ease !important;
         background-color: #FFFFFF !important;
         color: #1E293B !important;
+        font-size: 1rem !important;
+        font-weight: 700 !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
     }
 
-    section[data-testid="stSidebar"] div[data-testid="stButton"] button[kind="primary"],
-    section[data-testid="stSidebar"] div[data-testid="stButton"] button[data-testid="baseButton-primary"] {
+    /* 대분류 선택 상태 (찐파란색 #003399) */
+    section[data-testid="stSidebar"] > div div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"] > div[data-testid="stButton"] > button[kind="primary"],
+    section[data-testid="stSidebar"] > div div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"] > div[data-testid="stButton"] > button[data-testid="baseButton-primary"] {
         background-color: #003399 !important;
         color: #FFFFFF !important;
         border-color: #003399 !important;
         box-shadow: 0 2px 6px rgba(0, 51, 153, 0.25) !important;
     }
 
-    section[data-testid="stSidebar"] div[data-testid="stButton"] button p {
-        font-size: 1rem !important;
-        font-weight: 700 !important;
-        text-align: center !important;
-        width: 100% !important;
+    /* 📌 2. 소분류 전용 인덴트 라인 */
+    .sub-line {
+        width: 4px;
+        height: 34px;
+        background-color: #0284C7;
+        border-radius: 2px;
+        margin: 3px auto 0 auto;
     }
 
-    /* 📌 2. 하위 소분류 전용 컨테이너 (연하늘 배경 + 왼쪽 파란색 인덴트 라인) */
-    .sub-cat-box {
-        background-color: #F0F9FF;
-        border-left: 4px solid #0284C7;
-        border-radius: 0 10px 10px 0;
-        padding: 8px 6px 8px 10px;
-        margin-top: -2px;
-        margin-bottom: 10px;
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
-    }
-
-    /* 📌 3. 하위 소분류 버튼 스타일 (소분류임이 한눈에 티나는 명확한 스타일) */
-    .sub-cat-box div[data-testid="stButton"] button {
-        background-color: #E0F2FE !important;
-        color: #0369A1 !important;
-        border: 1px solid #BAE6FD !important;
+    /* 📌 3. 소분류 버튼 스타일 (컬럼 내부 버튼 -> 확실히 구분되는 연한 하늘색 박스) */
+    section[data-testid="stSidebar"] div[data-testid="stColumn"] div[data-testid="stButton"] > button {
+        background-color: #E0F2FE !important; /* 연한 하늘색 배경 */
+        color: #0369A1 !important;            /* 진한 하늘/파랑 글씨 */
+        border: 1px solid #7DD3FC !important; /* 연파랑 테두리 */
+        border-radius: 6px !important;
         font-size: 0.93rem !important;
+        font-weight: 700 !important;
         padding: 7px 8px !important;
-        margin-bottom: 4px !important;
+        margin-bottom: 2px !important;
     }
 
-    .sub-cat-box div[data-testid="stButton"] button[kind="primary"],
-    .sub-cat-box div[data-testid="stButton"] button[data-testid="baseButton-primary"] {
-        background-color: #0284C7 !important; /* 클릭된 소분류는 선명한 블루 */
+    section[data-testid="stSidebar"] div[data-testid="stColumn"] div[data-testid="stButton"] > button:hover {
+        background-color: #BAE6FD !important;
+        border-color: #38BDF8 !important;
+    }
+
+    /* 소분류 선택 상태 (선명한 하늘파란색 #0284C7) */
+    section[data-testid="stSidebar"] div[data-testid="stColumn"] div[data-testid="stButton"] > button[kind="primary"],
+    section[data-testid="stSidebar"] div[data-testid="stColumn"] div[data-testid="stButton"] > button[data-testid="baseButton-primary"] {
+        background-color: #0284C7 !important;
         color: #FFFFFF !important;
         border-color: #0284C7 !important;
         font-weight: 800 !important;
+        box-shadow: 0 2px 5px rgba(2, 132, 199, 0.3) !important;
     }
 
     /* 검색창 & 검색 버튼 스타일 */
@@ -313,7 +313,7 @@ if not df.empty:
         unique_mains = [str(c).strip() for c in df[main_cat_col].unique() if str(c).strip()]
         categories.extend(unique_mains)
 
-    # 📌 2. 왼쪽 사이드바 메뉴 (찐파란색 대분류 & 하늘색 계층형 소분류)
+    # 📌 2. 왼쪽 사이드바 메뉴 (계층형 들여쓰기 구조)
     st.sidebar.header("카테고리 선택")
 
     for idx, main_cat in enumerate(categories):
@@ -323,31 +323,34 @@ if not df.empty:
         # 1차 대분류 버튼
         if st.sidebar.button(main_cat, key=f"main_cat_{idx}", type=btn_type, use_container_width=True):
             st.session_state.selected_main_cat = main_cat
-            st.session_state.selected_sub_cat = None # 대분류 클릭 시 소분류 필터 초기화
+            st.session_state.selected_sub_cat = None # 대분류 클릭 시 소분류 초기화
             st.rerun()
 
-        # 2차 소분류 서브메뉴 (현재 선택된 대분류 아래에만 '전체 소분류' 없이 하위 소분류만 펼쳐짐)
+        # 2차 소분류 서브메뉴 (컬럼을 활용하여 구조적 들여쓰기 적용)
         if is_main_selected and main_cat != "전체 카테고리" and sub_cat_col:
             sub_df = df[df[main_cat_col] == main_cat]
-            # '전체 소분류' 제거 후 진짜 하위 소분류만 추출
             sub_categories = [str(s).strip() for s in sub_df[sub_cat_col].unique() if str(s).strip()]
             
             if sub_categories:
-                st.sidebar.markdown("<div class='sub-cat-box'>", unsafe_allow_html=True)
                 for sub_idx, sub_cat in enumerate(sub_categories):
                     is_sub_selected = (st.session_state.selected_sub_cat == sub_cat)
                     
-                    sub_label = f"└ {sub_cat}"
-                    sub_btn_type = "primary" if is_sub_selected else "secondary"
+                    # [들여쓰기 인덴트 영역, 버튼 영역]
+                    col_indent, col_btn = st.sidebar.columns([0.1, 0.9])
                     
-                    if st.sidebar.button(sub_label, key=f"sub_cat_{idx}_{sub_idx}", type=sub_btn_type, use_container_width=True):
-                        # 이미 선택된 소분류를 또 누르면 소분류 해제
-                        if is_sub_selected:
-                            st.session_state.selected_sub_cat = None
-                        else:
-                            st.session_state.selected_sub_cat = sub_cat
-                        st.rerun()
-                st.sidebar.markdown("</div>", unsafe_allow_html=True)
+                    with col_indent:
+                        # 소분류 연결 세로 라인 표시
+                        st.markdown("<div class='sub-line'></div>", unsafe_allow_html=True)
+                        
+                    with col_btn:
+                        sub_btn_type = "primary" if is_sub_selected else "secondary"
+                        # '└' 기호 없이 pure 소분류 명칭만 출력
+                        if st.button(sub_cat, key=f"sub_cat_{idx}_{sub_idx}", type=sub_btn_type, use_container_width=True):
+                            if is_sub_selected:
+                                st.session_state.selected_sub_cat = None
+                            else:
+                                st.session_state.selected_sub_cat = sub_cat
+                            st.rerun()
 
     # 📌 3. 메인 화면 - 키워드 검색 영역
     st.markdown("<p style='font-size: 1.15rem; font-weight: 800; color: #003399; margin-bottom: 6px;'>🔎 키워드, 태그, 질문 단어를 입력하세요</p>", unsafe_allow_html=True)
@@ -373,7 +376,7 @@ if not df.empty:
     if st.session_state.selected_main_cat != "전체 카테고리" and main_cat_col:
         filtered_df = filtered_df[filtered_df[main_cat_col] == st.session_state.selected_main_cat]
         
-        # 2단계: 소분류 필터링 (선택된 소분류가 있는 경우만)
+        # 2단계: 소분류 필터링
         if st.session_state.selected_sub_cat and sub_cat_col:
             filtered_df = filtered_df[filtered_df[sub_cat_col] == st.session_state.selected_sub_cat]
 
@@ -390,7 +393,7 @@ if not df.empty:
         filtered_df['match_score'] = scores[scores > 0]
         filtered_df = filtered_df.sort_values(by='match_score', ascending=False)
 
-    # 결과 타이틀 경로 표시 (예: [신규] 또는 [신규 > 가맹 조건])
+    # 결과 타이틀
     main_title = st.session_state.selected_main_cat
     sub_title = st.session_state.selected_sub_cat
     
