@@ -30,7 +30,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 3. 그룹웨어 팝업 서브메뉴 스타일링 CSS (그룹웨어 둥근 팝업 메뉴 완벽 이식)
+# 3. 레이아웃 고도화 CSS (대분류 볼드 유지 & 글자 크기 조절)
 st.markdown("""
     <style>
     /* Pretendard 폰트 전면 적용 */
@@ -57,30 +57,31 @@ st.markdown("""
         max-width: 96% !important;
     }
 
-    /* 📌 1. 좌측 메인 사이드바 슬림화 (그룹웨어 좌측 메뉴 느낌) */
+    /* 사이드바 폭 및 배경 */
     [data-testid="stSidebar"] {
-        min-width: 220px !important;
-        max-width: 230px !important;
-        background-color: #F1F5F9 !important;
+        min-width: 250px !important;
+        max-width: 260px !important;
+        background-color: #F8FAFC !important;
         border-right: 1px solid #E2E8F0 !important;
     }
 
     [data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
-        padding-left: 0.6rem !important;
-        padding-right: 0.6rem !important;
+        padding-left: 0.8rem !important;
+        padding-right: 0.8rem !important;
     }
 
+    /* 사이드바 제목 */
     [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
-        font-size: 1.1rem !important;
+        font-size: 1.15rem !important;
         font-weight: 800 !important;
         color: #003399 !important;
         text-align: center !important;
         padding-bottom: 8px;
-        border-bottom: 2px solid #CBD5E1;
+        border-bottom: 2px solid #E2E8F0;
         margin-bottom: 12px !important;
     }
 
-    /* 사이드바 대분류 버튼 스타일 */
+    /* 📌 1. 대분류 버튼 스타일 (볼드체 유지 + 폰트 크기 1.02rem으로 가독성 최적화) */
     section[data-testid="stSidebar"] > div div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"] > div[data-testid="stButton"] > button {
         padding: 9px 10px !important;
         margin-bottom: 3px !important;
@@ -88,12 +89,12 @@ st.markdown("""
         border: 1px solid #CBD5E1 !important;
         background-color: #FFFFFF !important;
         color: #0F172A !important;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
     }
 
     section[data-testid="stSidebar"] > div div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"] > div[data-testid="stButton"] > button p {
-        font-size: 1.02rem !important;
-        font-weight: 700 !important;
+        font-size: 1.02rem !important; /* 글자 크기 1pt 축소로 정돈 */
+        font-weight: 700 !important;  /* 깔끔한 볼드체 유지 */
         text-align: center !important;
         width: 100% !important;
     }
@@ -107,55 +108,40 @@ st.markdown("""
         box-shadow: 0 2px 6px rgba(0, 51, 153, 0.25) !important;
     }
 
-    /* 📌 2. 그룹웨어 팝업 서브메뉴 박스 (메인 화면 좌측 상단에 둥글게 입체 노출) */
-    .sub-pop-container {
-        background-color: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-left: 5px solid #003399;
-        border-radius: 14px;
-        padding: 14px 16px;
-        margin-bottom: 20px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    /* 📌 2. 소분류 전용 인덴트 라인 */
+    .sub-line {
+        width: 4px;
+        height: 34px;
+        background-color: #0284C7;
+        border-radius: 2px;
+        margin: 3px auto 0 auto;
     }
 
-    .sub-pop-header {
-        font-size: 0.95rem;
-        font-weight: 800;
-        color: #003399;
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    /* 팝업 내 소분류 버튼 커스텀 */
-    .sub-pop-container div[data-testid="stButton"] > button {
-        background-color: #F8FAFC !important;
-        color: #334155 !important;
-        border: 1px solid #E2E8F0 !important;
-        border-radius: 8px !important;
-        font-size: 0.95rem !important;
+    /* 📌 3. 소분류 버튼 스타일 (연한 하늘색 박스) */
+    section[data-testid="stSidebar"] div[data-testid="stColumn"] div[data-testid="stButton"] > button {
+        background-color: #E0F2FE !important;
+        color: #0369A1 !important;
+        border: 1px solid #7DD3FC !important;
+        border-radius: 6px !important;
+        font-size: 0.93rem !important;
         font-weight: 700 !important;
-        padding: 7px 12px !important;
-        margin-bottom: 0px !important;
-        text-align: left !important;
-        transition: all 0.15s ease !important;
+        padding: 7px 8px !important;
+        margin-bottom: 2px !important;
     }
 
-    .sub-pop-container div[data-testid="stButton"] > button:hover {
-        background-color: #EFF6FF !important;
-        color: #003399 !important;
-        border-color: #93C5FD !important;
+    section[data-testid="stSidebar"] div[data-testid="stColumn"] div[data-testid="stButton"] > button:hover {
+        background-color: #BAE6FD !important;
+        border-color: #38BDF8 !important;
     }
 
-    /* 소분류 선택 상태 (선명한 블루 톤) */
-    .sub-pop-container div[data-testid="stButton"] > button[kind="primary"],
-    .sub-pop-container div[data-testid="stButton"] > button[data-testid="baseButton-primary"] {
-        background-color: #003399 !important;
+    /* 소분류 선택 상태 (선명한 하늘파란색 #0284C7) */
+    section[data-testid="stSidebar"] div[data-testid="stColumn"] div[data-testid="stButton"] > button[kind="primary"],
+    section[data-testid="stSidebar"] div[data-testid="stColumn"] div[data-testid="stButton"] > button[data-testid="baseButton-primary"] {
+        background-color: #0284C7 !important;
         color: #FFFFFF !important;
-        border-color: #003399 !important;
+        border-color: #0284C7 !important;
         font-weight: 800 !important;
-        box-shadow: 0 2px 6px rgba(0, 51, 153, 0.2) !important;
+        box-shadow: 0 2px 5px rgba(2, 132, 199, 0.3) !important;
     }
 
     /* 검색창 & 검색 버튼 스타일 */
@@ -217,7 +203,7 @@ st.markdown("""
         color: #1E293B !important;
     }
     
-    /* CS 답변 상자 */
+    /* E열 CS 응대 답변 상자 */
     .answer-box {
         background-color: #F8FAFC;
         border-left: 4px solid #003399;
@@ -234,7 +220,7 @@ st.markdown("""
         box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
     }
 
-    /* 이관 양식 상자 */
+    /* F열 이관 양식 상자 */
     .form-box {
         background-color: #FEF3C7;
         border-left: 4px solid #D97706;
@@ -250,7 +236,7 @@ st.markdown("""
         margin-top: 12px;
     }
 
-    /* 관련 링크 상자 */
+    /* G열 관련 링크 상자 */
     .link-box {
         background-color: #F0F9FF;
         border-left: 4px solid #0284C7;
@@ -307,7 +293,7 @@ def format_answer_sentences(text):
         return ""
     text = str(text)
     text = text.replace('\n', '<br>')
-    text = re.sub(r'([.?!]|\)\.)\s+', r brand_tag, text) if 'brand_tag' in locals() else re.sub(r'([.?!]|\)\.)\s+', r'\1<br>', text)
+    text = re.sub(r'([.?!]|\)\.)\s+', r'\1<br>', text)
     return text
 
 if not df.empty:
@@ -332,47 +318,43 @@ if not df.empty:
         unique_mains = [str(c).strip() for c in df[main_cat_col].unique() if str(c).strip()]
         categories.extend(unique_mains)
 
-    # 📌 2. 슬림 좌측 사이드바 (대분류 전용 메뉴)
+    # 📌 2. 왼쪽 사이드바 메뉴
     st.sidebar.header("카테고리 선택")
 
     for idx, main_cat in enumerate(categories):
         is_main_selected = (st.session_state.selected_main_cat == main_cat)
         btn_type = "primary" if is_main_selected else "secondary"
         
+        # 1차 대분류 버튼
         if st.sidebar.button(main_cat, key=f"main_cat_{idx}", type=btn_type, use_container_width=True):
             st.session_state.selected_main_cat = main_cat
-            st.session_state.selected_sub_cat = None # 대분류 변경 시 소분류 초기화
+            st.session_state.selected_sub_cat = None # 대분류 클릭 시 소분류 초기화
             st.rerun()
 
-    # 📌 3. 그룹웨어 형태의 서브 팝업 메뉴 (대분류 클릭 시 메인 상단에 둥근 카드 형태로 등장)
-    current_main = st.session_state.selected_main_cat
-    if current_main != "전체 카테고리" and sub_cat_col:
-        sub_df = df[df[main_cat_col] == current_main]
-        sub_categories = [str(s).strip() for s in sub_df[sub_cat_col].unique() if str(s).strip()]
-        
-        if sub_categories:
-            st.markdown("<div class='sub-pop-container'>", unsafe_allow_html=True)
-            st.markdown(f"<div class='sub-pop-header'>📂 {current_main} 세부 항목</div>", unsafe_allow_html=True)
+        # 2차 소분류 서브메뉴
+        if is_main_selected and main_cat != "전체 카테고리" and sub_cat_col:
+            sub_df = df[df[main_cat_col] == main_cat]
+            sub_categories = [str(s).strip() for s in sub_df[sub_cat_col].unique() if str(s).strip()]
             
-            # 소분류 버튼을 가로 4~5개 행으로 둥근 팝업 내 배치
-            cols_per_row = 5
-            for row_start in range(0, len(sub_categories), cols_per_row):
-                row_cats = sub_categories[row_start : row_start + cols_per_row]
-                cols = st.columns(cols_per_row)
-                
-                for s_idx, sub_cat in enumerate(row_cats):
+            if sub_categories:
+                for sub_idx, sub_cat in enumerate(sub_categories):
                     is_sub_selected = (st.session_state.selected_sub_cat == sub_cat)
-                    s_btn_type = "primary" if is_sub_selected else "secondary"
                     
-                    if cols[s_idx].button(sub_cat, key=f"pop_sub_{row_start}_{s_idx}", type=s_btn_type, use_container_width=True):
-                        if is_sub_selected:
-                            st.session_state.selected_sub_cat = None
-                        else:
-                            st.session_state.selected_sub_cat = sub_cat
-                        st.rerun()
-            st.markdown("</div>", unsafe_allow_html=True)
+                    col_indent, col_btn = st.sidebar.columns([0.1, 0.9])
+                    
+                    with col_indent:
+                        st.markdown("<div class='sub-line'></div>", unsafe_allow_html=True)
+                        
+                    with col_btn:
+                        sub_btn_type = "primary" if is_sub_selected else "secondary"
+                        if st.button(sub_cat, key=f"sub_cat_{idx}_{sub_idx}", type=sub_btn_type, use_container_width=True):
+                            if is_sub_selected:
+                                st.session_state.selected_sub_cat = None
+                            else:
+                                st.session_state.selected_sub_cat = sub_cat
+                            st.rerun()
 
-    # 📌 4. 메인 화면 - 키워드 검색 영역
+    # 📌 3. 메인 화면 - 키워드 검색 영역
     st.markdown("<p style='font-size: 1.15rem; font-weight: 800; color: #003399; margin-bottom: 6px;'>🔎 키워드, 태그, 질문 단어를 입력하세요</p>", unsafe_allow_html=True)
     
     col_search_input, col_search_btn = st.columns([5.5, 1])
@@ -389,7 +371,7 @@ if not df.empty:
 
     st.markdown("---")
 
-    # 📌 5. 데이터 필터링
+    # 📌 4. 데이터 필터링
     filtered_df = df.copy()
     
     # 1단계: 대분류 필터링
