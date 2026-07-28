@@ -30,7 +30,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 3. 레이아웃 고도화 CSS (사이드바 팝오버 메뉴 & 메인 화면 완전 고정 디자인)
+# 3. 레이아웃 고도화 CSS (대분류 무조건 전체 볼드 강제 적용 + 팝오버 디자인)
 st.markdown("""
     <style>
     /* Pretendard 폰트 전면 적용 */
@@ -80,33 +80,22 @@ st.markdown("""
         margin-bottom: 12px !important;
     }
 
-    /* 📌 사이드바 대분류 일반 버튼 스타일 (강력한 볼드체 적용) */
-    section[data-testid="stSidebar"] div[data-testid="stButton"] button {
-        padding: 10px 8px !important;
-        margin-bottom: 4px !important;
-        border-radius: 8px !important;
-        border: 1px solid #CBD5E1 !important;
-        background-color: #FFFFFF !important;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;
-    }
-
-    section[data-testid="stSidebar"] div[data-testid="stButton"] button p {
+    /* 🔥 [핵심 수정] 대분류 버튼 (일반 버튼 + 팝오버 버튼) 안의 모든 텍스트를 클릭 안 했을 때도 100% 두껍게(볼드체 800) 강제 */
+    section[data-testid="stSidebar"] button,
+    section[data-testid="stSidebar"] button *,
+    div[data-testid="stPopover"] button,
+    div[data-testid="stPopover"] button * {
+        font-weight: 800 !important;
         font-size: 1.02rem !important;
-        font-weight: 800 !important; /* 확 띄는 볼드체 */
         color: #0F172A !important;
-        text-align: center !important;
-        width: 100% !important;
     }
 
-    /* 📌 2. 사이드바 팝오버(Popover) 버튼 커스텀 (그룹웨어 플로팅 메뉴 디자인) */
-    div[data-testid="stPopover"] {
-        width: 100% !important;
-        margin-bottom: 4px !important;
-    }
-
+    /* 사이드바 기본 버튼 & 팝오버 버튼 카드 디자인 */
+    section[data-testid="stSidebar"] div[data-testid="stButton"] button,
     div[data-testid="stPopover"] > button {
         width: 100% !important;
         padding: 10px 8px !important;
+        margin-bottom: 4px !important;
         border-radius: 8px !important;
         border: 1px solid #CBD5E1 !important;
         background-color: #FFFFFF !important;
@@ -114,20 +103,14 @@ st.markdown("""
         transition: all 0.15s ease !important;
     }
 
+    /* 마우스 호버 시 포인트 연파랑 배경 */
+    section[data-testid="stSidebar"] div[data-testid="stButton"] button:hover,
     div[data-testid="stPopover"] > button:hover {
         background-color: #EFF6FF !important;
         border-color: #93C5FD !important;
     }
 
-    div[data-testid="stPopover"] > button p {
-        font-size: 1.02rem !important;
-        font-weight: 800 !important; /* 확 띄는 볼드체 */
-        color: #0F172A !important;
-        text-align: center !important;
-        width: 100% !important;
-    }
-
-    /* 대분류 버튼 활성화(Primary) 상태 - 버튼, 팝오버 모두 적용 */
+    /* 클릭 선택 상태 (Primary)일 때 찐파란 배경 & 글자는 흰색 */
     section[data-testid="stSidebar"] div[data-testid="stButton"] button[kind="primary"],
     section[data-testid="stSidebar"] div[data-testid="stButton"] button[data-testid="baseButton-primary"],
     div[data-testid="stPopover"] > button[kind="primary"],
@@ -135,12 +118,11 @@ st.markdown("""
         background-color: #003399 !important;
         border-color: #003399 !important;
     }
-    
-    /* 활성화 상태의 텍스트 색상을 강제로 하얀색으로 변경 */
-    section[data-testid="stSidebar"] div[data-testid="stButton"] button[kind="primary"] p,
-    section[data-testid="stSidebar"] div[data-testid="stButton"] button[data-testid="baseButton-primary"] p,
-    div[data-testid="stPopover"] > button[kind="primary"] p,
-    div[data-testid="stPopover"] > button[data-testid="baseButton-primary"] p {
+
+    section[data-testid="stSidebar"] div[data-testid="stButton"] button[kind="primary"] *,
+    section[data-testid="stSidebar"] div[data-testid="stButton"] button[data-testid="baseButton-primary"] *,
+    div[data-testid="stPopover"] > button[kind="primary"] *,
+    div[data-testid="stPopover"] > button[data-testid="baseButton-primary"] * {
         color: #FFFFFF !important;
     }
 
@@ -163,25 +145,26 @@ st.markdown("""
         border: none !important;
         border-radius: 6px !important;
         padding: 8px 10px !important;
-        color: #334155 !important;
-        font-size: 0.95rem !important;
-        font-weight: 600 !important;
         margin-bottom: 2px !important;
     }
 
-    /* 🔥 마우스 오버 시 확 눈에 띄는 진한 하늘색 하이라이트 */
+    div[data-testid="stPopoverBody"] div[data-testid="stButton"] button * {
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+        color: #334155 !important;
+    }
+
+    /* 🔥 소분류 마우스 오버 시 확 눈에 띄는 진한 하늘색 하이라이트 */
     div[data-testid="stPopoverBody"] div[data-testid="stButton"] button:hover {
         background-color: #BFDBFE !important; /* 진한 하늘색 */
-        color: #003399 !important; /* 텍스트는 찐파랑 */
+    }
+
+    div[data-testid="stPopoverBody"] div[data-testid="stButton"] button:hover * {
+        color: #003399 !important; /* 텍스트 찐파랑 */
         font-weight: 800 !important;
     }
 
-    div[data-testid="stPopoverBody"] div[data-testid="stButton"] button p {
-        text-align: left !important;
-        color: inherit !important;
-    }
-
-    /* 📌 3. 검색창 & 검색 버튼 스타일 */
+    /* 📌 검색창 & 검색 버튼 스타일 */
     .stTextInput > div > div {
         border-radius: 10px !important;
         border: 1px solid #CBD5E1 !important;
@@ -198,6 +181,11 @@ st.markdown("""
         border: none !important;
         box-shadow: 0 2px 6px rgba(0, 51, 153, 0.2) !important;
         transition: all 0.2s ease !important;
+    }
+
+    .main div[data-testid="stColumn"]:nth-child(2) div[data-testid="stButton"] button p {
+        color: #FFFFFF !important;
+        font-weight: 800 !important;
     }
 
     .main div[data-testid="stColumn"]:nth-child(2) div[data-testid="stButton"] button:hover {
@@ -355,7 +343,7 @@ if not df.empty:
         unique_mains = [str(c).strip() for c in df[main_cat_col].unique() if str(c).strip()]
         categories.extend(unique_mains)
 
-    # 📌 2. 사이드바 (팝오버 레이어 메뉴 적용)
+    # 📌 2. 사이드바 메뉴
     st.sidebar.markdown("<p style='text-align: center; font-weight: 800; color: #003399; margin-bottom: 8px;'>카테고리</p>", unsafe_allow_html=True)
 
     for idx, main_cat in enumerate(categories):
@@ -374,11 +362,10 @@ if not df.empty:
 
             # 소분류가 있는 대분류는 클릭 시 오른쪽으로 플로팅 팝업창이 떠오름
             if sub_categories:
-                # 팝오버 창 생성 (메인 화면 레이아웃 밀림 방지)
                 popover = st.sidebar.popover(main_cat, use_container_width=True)
                 
                 with popover:
-                    # 🔥 폴더 아이콘 대신 택시 아이콘(🚕) 적용
+                    # 택시 아이콘(🚕) 적용
                     st.markdown(f"<p style='font-size:1.05rem; font-weight:800; color:#003399; border-bottom:1px solid #E2E8F0; padding-bottom:6px; margin-bottom:8px;'>🚕 {main_cat}</p>", unsafe_allow_html=True)
                     
                     # '대분류 전체 보기' 버튼
@@ -404,7 +391,7 @@ if not df.empty:
                     st.session_state.selected_sub_cat = None
                     st.rerun()
 
-    # 📌 3. 메인 화면 - 키워드 검색 영역 (완전 고정 위치)
+    # 📌 3. 메인 화면 - 키워드 검색 영역 (고정 위치)
     st.markdown("<p style='font-size: 1.15rem; font-weight: 800; color: #003399; margin-bottom: 6px;'>🔎 키워드, 태그, 질문 단어를 입력하세요</p>", unsafe_allow_html=True)
     
     col_search_input, col_search_btn = st.columns([5.5, 1])
