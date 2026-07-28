@@ -30,7 +30,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 3. 레이아웃 커스텀 CSS (이관 양식 & 관련 링크 카드 스타일 추가)
+# 3. 레이아웃 커스텀 CSS (2단계 계층형 사이드바 메뉴 디자인 추가)
 st.markdown("""
     <style>
     /* Pretendard 폰트 전면 적용 */
@@ -57,10 +57,10 @@ st.markdown("""
         max-width: 96% !important;
     }
 
-    /* 사이드바 폭 축소 및 디자인 */
+    /* 사이드바 폭 및 디자인 정돈 */
     [data-testid="stSidebar"] {
-        min-width: 230px !important;
-        max-width: 240px !important;
+        min-width: 250px !important;
+        max-width: 260px !important;
         background-color: #F8FAFC !important;
         border-right: 1px solid #E2E8F0 !important;
     }
@@ -70,6 +70,7 @@ st.markdown("""
         padding-right: 0.8rem !important;
     }
 
+    /* 사이드바 대분류 헤더 */
     [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
         font-size: 1.15rem !important;
         font-weight: 800 !important;
@@ -80,9 +81,10 @@ st.markdown("""
         margin-bottom: 12px !important;
     }
 
+    /* 📌 상위 대분류 버튼 스타일 */
     section[data-testid="stSidebar"] div[data-testid="stButton"] button {
         padding: 9px 10px !important;
-        margin-bottom: 5px !important;
+        margin-bottom: 4px !important;
         border-radius: 8px !important;
         text-align: center !important;
         justify-content: center !important;
@@ -96,6 +98,16 @@ st.markdown("""
         font-weight: 700 !important;
         text-align: center !important;
         width: 100% !important;
+    }
+
+    /* 📌 하위 소분류 전용 컨테이너 및 버튼 디자인 (계층적 인덴트 적용) */
+    .sub-cat-box {
+        background-color: #EFF6FF;
+        border-left: 3px solid #003399;
+        border-radius: 0 8px 8px 0;
+        padding: 6px 4px 6px 8px;
+        margin-top: -2px;
+        margin-bottom: 8px;
     }
 
     /* 검색창 & 검색 버튼 스타일 */
@@ -157,7 +169,7 @@ st.markdown("""
         color: #1E293B !important;
     }
     
-    /* 📌 E열: 기본 CS 답변 상자 */
+    /* E열 CS 응대 답변 상자 */
     .answer-box {
         background-color: #F8FAFC;
         border-left: 4px solid #003399;
@@ -174,7 +186,7 @@ st.markdown("""
         box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
     }
 
-    /* 📌 F열: 이관 양식 전용 상자 (주황빛 포인트) */
+    /* F열 이관 양식 상자 */
     .form-box {
         background-color: #FEF3C7;
         border-left: 4px solid #D97706;
@@ -190,7 +202,7 @@ st.markdown("""
         margin-top: 12px;
     }
 
-    /* 📌 G열: 관련 링크 전용 상자 (하늘빛 포인트) */
+    /* G열 관련 링크 상자 */
     .link-box {
         background-color: #F0F9FF;
         border-left: 4px solid #0284C7;
@@ -216,9 +228,9 @@ st.markdown("""
 
 # 4. 헤더 타이틀
 st.title("🚕 BTX CS 응대 매뉴얼 검색")
-st.markdown("<p class='sub-description'>왼쪽 메뉴에서 카테고리를 선택하거나, 키워드를 검색하면 관련 매뉴얼이 정돈되어 표시됩니다.</p>", unsafe_allow_html=True)
+st.markdown("<p class='sub-description'>왼쪽 메뉴에서 대분류 및 소분류를 선택하거나, 키워드를 검색하면 관련 매뉴얼이 정돈되어 표시됩니다.</p>", unsafe_allow_html=True)
 
-# ⚠️ 구글 시트 CSV 주소 (채영님의 진짜 CSV 링크를 넣어주세요!)
+# ⚠️ 구글 시트 CSV 주소
 GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTLIy_47IhFOZPYjwTSyEBz1FzxROrC-rbo8Yx6SM_31EPynnoqL893SQbjzzAVnLGOdu28vXFDjsx2/pub?output=csv"
 
 @st.cache_data(ttl=10)
@@ -233,7 +245,7 @@ def load_data():
 with st.spinner("매뉴얼 데이터를 불러오는 중입니다..."):
     df = load_data()
 
-# 구글 시트 열 이름 검색 함수
+# 구글 시트 열 이름 파싱 함수
 def get_col_val(row, possible_names, default_val=""):
     for col in row.index:
         for name in possible_names:
@@ -251,32 +263,59 @@ def format_answer_sentences(text):
     return text
 
 if not df.empty:
-    # 📌 1. 왼쪽 사이드바 카테고리 메뉴
-    st.sidebar.header("카테고리 선택")
+    # 📌 1. 세션 상태 초기화 (대분류 & 소분류 계층 관리)
+    if "selected_main_cat" not in st.session_state:
+        st.session_state.selected_main_cat = "전체 카테고리"
+    if "selected_sub_cat" not in st.session_state:
+        st.session_state.selected_sub_cat = "전체 소분류"
 
-    if "selected_cat" not in st.session_state:
-        st.session_state.selected_cat = "전체 카테고리"
-
+    # 대분류/소분류 열 이름 자동 찾기
     main_cat_col = None
+    sub_cat_col = None
     for col in df.columns:
-        if any(k in str(col).lower() for k in ["대분류", "카테고리"]):
+        col_clean = str(col).lower().replace(" ", "")
+        if any(k in col_clean for k in ["대분류", "카테고리"]):
             main_cat_col = col
-            break
+        elif any(k in col_clean for k in ["소분류", "중분류"]):
+            sub_cat_col = col
 
     categories = ["전체 카테고리"]
     if main_cat_col:
-        unique_cats = [c for c in df[main_cat_col].unique() if str(c).strip()]
-        categories.extend(unique_cats)
+        unique_mains = [str(c).strip() for c in df[main_cat_col].unique() if str(c).strip()]
+        categories.extend(unique_mains)
 
-    for idx, cat in enumerate(categories):
-        is_selected = (st.session_state.selected_cat == cat)
-        btn_type = "primary" if is_selected else "secondary"
+    # 📌 2. 왼쪽 사이드바 계층형 폴더 메뉴
+    st.sidebar.header("카테고리 선택")
+
+    for idx, main_cat in enumerate(categories):
+        is_main_selected = (st.session_state.selected_main_cat == main_cat)
+        btn_type = "primary" if is_main_selected else "secondary"
         
-        if st.sidebar.button(cat, key=f"side_cat_{idx}", type=btn_type, use_container_width=True):
-            st.session_state.selected_cat = cat
+        # 1차 대분류 버튼
+        if st.sidebar.button(main_cat, key=f"main_cat_{idx}", type=btn_type, use_container_width=True):
+            st.session_state.selected_main_cat = main_cat
+            st.session_state.selected_sub_cat = "전체 소분류" # 대분류 전환 시 소분류 초기화
             st.rerun()
 
-    # 📌 2. 키워드 검색 영역
+        # 2차 소분류 서브메뉴 (현재 클릭하여 선택된 대분류 바로 아래에 펼쳐짐)
+        if is_main_selected and main_cat != "전체 카테고리" and sub_cat_col:
+            sub_df = df[df[main_cat_col] == main_cat]
+            sub_categories = ["전체 소분류"] + [str(s).strip() for s in sub_df[sub_cat_col].unique() if str(s).strip()]
+            
+            st.sidebar.markdown("<div class='sub-cat-box'>", unsafe_allow_html=True)
+            for sub_idx, sub_cat in enumerate(sub_categories):
+                is_sub_selected = (st.session_state.selected_sub_cat == sub_cat)
+                
+                # 소분류 표기방식 (선택된 소분류 강조)
+                sub_label = f"└ {sub_cat}" if sub_cat != "전체 소분류" else "└ 전체 소분류"
+                sub_btn_type = "primary" if is_sub_selected else "secondary"
+                
+                if st.sidebar.button(sub_label, key=f"sub_cat_{idx}_{sub_idx}", type=sub_btn_type, use_container_width=True):
+                    st.session_state.selected_sub_cat = sub_cat
+                    st.rerun()
+            st.sidebar.markdown("</div>", unsafe_allow_html=True)
+
+    # 📌 3. 메인 화면 - 키워드 검색 영역
     st.markdown("<p style='font-size: 1.15rem; font-weight: 800; color: #003399; margin-bottom: 6px;'>🔎 키워드, 태그, 질문 단어를 입력하세요</p>", unsafe_allow_html=True)
     
     col_search_input, col_search_btn = st.columns([5.5, 1])
@@ -293,12 +332,18 @@ if not df.empty:
 
     st.markdown("---")
 
-    # 1단계: 사이드바 카테고리 필터링
+    # 📌 4. 데이터 필터링 (1단계: 대분류 -> 2단계: 소분류 -> 3단계: 키워드)
     filtered_df = df.copy()
-    if st.session_state.selected_cat != "전체 카테고리" and main_cat_col:
-        filtered_df = filtered_df[filtered_df[main_cat_col] == st.session_state.selected_cat]
+    
+    # 1단계: 대분류 필터링
+    if st.session_state.selected_main_cat != "전체 카테고리" and main_cat_col:
+        filtered_df = filtered_df[filtered_df[main_cat_col] == st.session_state.selected_main_cat]
+        
+        # 2단계: 소분류 필터링
+        if st.session_state.selected_sub_cat != "전체 소분류" and sub_cat_col:
+            filtered_df = filtered_df[filtered_df[sub_cat_col] == st.session_state.selected_sub_cat]
 
-    # 2단계: 키워드 검색 필터링
+    # 3단계: 키워드 검색 필터링
     if search_query:
         keywords = [k.strip().lower() for k in search_query.replace(',', ' ').split() if k.strip()]
 
@@ -311,14 +356,20 @@ if not df.empty:
         filtered_df['match_score'] = scores[scores > 0]
         filtered_df = filtered_df.sort_values(by='match_score', ascending=False)
 
-    # 결과 타이틀
-    selected_cat_name = st.session_state.selected_cat
-    if search_query:
-        st.subheader(f"📋 [{selected_cat_name}] '{search_query}' 검색 결과 (총 {len(filtered_df)}건)")
-    else:
-        st.subheader(f"📋 [{selected_cat_name}] 매뉴얼 목록 (총 {len(filtered_df)}건)")
+    # 결과 타이틀 경로 표시 (예: [정산 > 정산 오결제/ 결제 취소])
+    main_title = st.session_state.selected_main_cat
+    sub_title = st.session_state.selected_sub_cat
+    
+    path_str = main_title
+    if main_title != "전체 카테고리" and sub_title != "전체 소분류":
+        path_str += f" > {sub_title}"
 
-    # 그룹별 Q&A 카드 출력 (A~G열 완전 반영)
+    if search_query:
+        st.subheader(f"📋 [{path_str}] '{search_query}' 검색 결과 (총 {len(filtered_df)}건)")
+    else:
+        st.subheader(f"📋 [{path_str}] 매뉴얼 목록 (총 {len(filtered_df)}건)")
+
+    # 그룹별 Q&A 카드 출력
     if not filtered_df.empty:
         grouped = {}
         for idx, row in filtered_df.iterrows():
@@ -331,13 +382,10 @@ if not df.empty:
             st.markdown(f"<div class='category-header'>🚕 {cat_name} ({len(rows)}건)</div>", unsafe_allow_html=True)
             
             for row in rows:
-                # 구글 시트 A~G열 데이터 파싱
                 cat_sub = get_col_val(row, ["소분류", "중분류"], "")
                 keywords_text = get_col_val(row, ["키워드", "태그", "tag"], "")
                 question = get_col_val(row, ["고객질문", "질문", "q"], "질문 내용")
                 answer = get_col_val(row, ["응대답변", "답변", "a"], "답변 내용")
-                
-                # 📌 신규 추가: F열 (이관 양식) & G열 (관련 링크)
                 transfer_form = get_col_val(row, ["이관양식", "이관 양식", "이관"], "")
                 related_link = get_col_val(row, ["관련링크", "관련 링크", "링크", "link"], "")
 
@@ -348,17 +396,17 @@ if not df.empty:
                     if keywords_text:
                         st.caption(f"🏷️ **연관 태그:** {keywords_text}")
                     
-                    # 1. E열 CS 응대 답변
+                    # E열 CS 응대 답변
                     st.markdown("**💡 CS 응대 답변:**")
                     formatted_answer = format_answer_sentences(answer)
                     st.markdown(f"<div class='answer-box'>{formatted_answer}</div>", unsafe_allow_html=True)
 
-                    # 2. F열 이관 양식 (값이 존재할 때만 자동 노출)
+                    # F열 이관 양식
                     if transfer_form and str(transfer_form).strip():
                         formatted_form = format_answer_sentences(transfer_form)
                         st.markdown(f"<div class='form-box'><b>📋 이관 양식:</b><br>{formatted_form}</div>", unsafe_allow_html=True)
 
-                    # 3. G열 관련 링크 (값이 존재할 때만 클릭 가능한 링크로 자동 노출)
+                    # G열 관련 링크
                     if related_link and str(related_link).strip():
                         raw_link = str(related_link).strip()
                         full_url = raw_link if raw_link.startswith(("http://", "https://")) else f"https://{raw_link}"
