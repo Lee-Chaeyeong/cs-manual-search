@@ -80,20 +80,20 @@ st.markdown("""
         margin-bottom: 12px !important;
     }
 
-    /* 사이드바 대분류 일반 버튼 스타일 */
+    /* 📌 사이드바 대분류 일반 버튼 스타일 (강력한 볼드체 적용) */
     section[data-testid="stSidebar"] div[data-testid="stButton"] button {
-        padding: 9px 8px !important;
+        padding: 10px 8px !important;
         margin-bottom: 4px !important;
         border-radius: 8px !important;
         border: 1px solid #CBD5E1 !important;
         background-color: #FFFFFF !important;
-        color: #0F172A !important;
         box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;
     }
 
     section[data-testid="stSidebar"] div[data-testid="stButton"] button p {
-        font-size: 0.98rem !important;
-        font-weight: 700 !important;
+        font-size: 1.02rem !important;
+        font-weight: 800 !important; /* 확 띄는 볼드체 */
+        color: #0F172A !important;
         text-align: center !important;
         width: 100% !important;
     }
@@ -106,26 +106,42 @@ st.markdown("""
 
     div[data-testid="stPopover"] > button {
         width: 100% !important;
-        padding: 9px 8px !important;
+        padding: 10px 8px !important;
         border-radius: 8px !important;
         border: 1px solid #CBD5E1 !important;
         background-color: #FFFFFF !important;
-        color: #0F172A !important;
         box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;
         transition: all 0.15s ease !important;
     }
 
     div[data-testid="stPopover"] > button:hover {
         background-color: #EFF6FF !important;
-        color: #003399 !important;
         border-color: #93C5FD !important;
     }
 
     div[data-testid="stPopover"] > button p {
-        font-size: 0.98rem !important;
-        font-weight: 700 !important;
+        font-size: 1.02rem !important;
+        font-weight: 800 !important; /* 확 띄는 볼드체 */
+        color: #0F172A !important;
         text-align: center !important;
         width: 100% !important;
+    }
+
+    /* 대분류 버튼 활성화(Primary) 상태 - 버튼, 팝오버 모두 적용 */
+    section[data-testid="stSidebar"] div[data-testid="stButton"] button[kind="primary"],
+    section[data-testid="stSidebar"] div[data-testid="stButton"] button[data-testid="baseButton-primary"],
+    div[data-testid="stPopover"] > button[kind="primary"],
+    div[data-testid="stPopover"] > button[data-testid="baseButton-primary"] {
+        background-color: #003399 !important;
+        border-color: #003399 !important;
+    }
+    
+    /* 활성화 상태의 텍스트 색상을 강제로 하얀색으로 변경 */
+    section[data-testid="stSidebar"] div[data-testid="stButton"] button[kind="primary"] p,
+    section[data-testid="stSidebar"] div[data-testid="stButton"] button[data-testid="baseButton-primary"] p,
+    div[data-testid="stPopover"] > button[kind="primary"] p,
+    div[data-testid="stPopover"] > button[data-testid="baseButton-primary"] p {
+        color: #FFFFFF !important;
     }
 
     /* 📌 팝오버 창 스타일링 (버튼 클릭 시 메인 화면 위로 뜨는 둥근 팝업) */
@@ -138,7 +154,7 @@ st.markdown("""
         background-color: #FFFFFF !important;
     }
 
-    /* 팝오버 내부 소분류 세로 버튼 디자인 */
+    /* 📌 팝오버 내부 소분류 세로 버튼 디자인 */
     div[data-testid="stPopoverBody"] div[data-testid="stButton"] button {
         width: 100% !important;
         text-align: left !important;
@@ -148,18 +164,21 @@ st.markdown("""
         border-radius: 6px !important;
         padding: 8px 10px !important;
         color: #334155 !important;
-        font-size: 0.93rem !important;
+        font-size: 0.95rem !important;
         font-weight: 600 !important;
         margin-bottom: 2px !important;
     }
 
+    /* 🔥 마우스 오버 시 확 눈에 띄는 진한 하늘색 하이라이트 */
     div[data-testid="stPopoverBody"] div[data-testid="stButton"] button:hover {
-        background-color: #F1F5F9 !important;
-        color: #003399 !important;
+        background-color: #BFDBFE !important; /* 진한 하늘색 */
+        color: #003399 !important; /* 텍스트는 찐파랑 */
+        font-weight: 800 !important;
     }
 
     div[data-testid="stPopoverBody"] div[data-testid="stButton"] button p {
         text-align: left !important;
+        color: inherit !important;
     }
 
     /* 📌 3. 검색창 & 검색 버튼 스타일 */
@@ -359,7 +378,8 @@ if not df.empty:
                 popover = st.sidebar.popover(main_cat, use_container_width=True)
                 
                 with popover:
-                    st.markdown(f"<p style='font-weight:800; color:#003399; border-bottom:1px solid #E2E8F0; padding-bottom:6px; margin-bottom:8px;'>📂 {main_cat}</p>", unsafe_allow_html=True)
+                    # 🔥 폴더 아이콘 대신 택시 아이콘(🚕) 적용
+                    st.markdown(f"<p style='font-size:1.05rem; font-weight:800; color:#003399; border-bottom:1px solid #E2E8F0; padding-bottom:6px; margin-bottom:8px;'>🚕 {main_cat}</p>", unsafe_allow_html=True)
                     
                     # '대분류 전체 보기' 버튼
                     if st.button(f"전체 {main_cat} 보기", key=f"pop_all_{idx}"):
