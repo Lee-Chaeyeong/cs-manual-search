@@ -30,7 +30,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 3. 레이아웃 고도화 CSS (대분류 vs 소분류 완벽 시각적 구분)
+# 3. 레이아웃 고도화 CSS (대분류 폰트 크기 확대 & 강력한 볼드 적용)
 st.markdown("""
     <style>
     /* Pretendard 폰트 전면 적용 */
@@ -81,17 +81,22 @@ st.markdown("""
         margin-bottom: 12px !important;
     }
 
-    /* 📌 1. 대분류 버튼 스타일 (사이드바 기본 버튼) */
+    /* 📌 1. 대분류 버튼 스타일 (폰트 크기 1.12rem 확대 & 볼드체 800 강조) */
     section[data-testid="stSidebar"] > div div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"] > div[data-testid="stButton"] > button {
-        padding: 9px 10px !important;
-        margin-bottom: 2px !important;
+        padding: 10px 10px !important;
+        margin-bottom: 3px !important;
         border-radius: 8px !important;
         border: 1px solid #CBD5E1 !important;
         background-color: #FFFFFF !important;
-        color: #1E293B !important;
-        font-size: 1rem !important;
-        font-weight: 700 !important;
+        color: #0F172A !important;
         box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
+    }
+
+    section[data-testid="stSidebar"] > div div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"] > div[data-testid="stButton"] > button p {
+        font-size: 1.12rem !important; /* 기존 1rem -> 1.12rem으로 크기 확대 */
+        font-weight: 800 !important;  /* 아주 두꺼운 볼드체 적용 */
+        text-align: center !important;
+        width: 100% !important;
     }
 
     /* 대분류 선택 상태 (찐파란색 #003399) */
@@ -112,13 +117,13 @@ st.markdown("""
         margin: 3px auto 0 auto;
     }
 
-    /* 📌 3. 소분류 버튼 스타일 (컬럼 내부 버튼 -> 확실히 구분되는 연한 하늘색 박스) */
+    /* 📌 3. 소분류 버튼 스타일 (연한 하늘색 박스) */
     section[data-testid="stSidebar"] div[data-testid="stColumn"] div[data-testid="stButton"] > button {
-        background-color: #E0F2FE !important; /* 연한 하늘색 배경 */
-        color: #0369A1 !important;            /* 진한 하늘/파랑 글씨 */
-        border: 1px solid #7DD3FC !important; /* 연파랑 테두리 */
+        background-color: #E0F2FE !important;
+        color: #0369A1 !important;
+        border: 1px solid #7DD3FC !important;
         border-radius: 6px !important;
-        font-size: 0.93rem !important;
+        font-size: 0.95rem !important;
         font-weight: 700 !important;
         padding: 7px 8px !important;
         margin-bottom: 2px !important;
@@ -313,20 +318,20 @@ if not df.empty:
         unique_mains = [str(c).strip() for c in df[main_cat_col].unique() if str(c).strip()]
         categories.extend(unique_mains)
 
-    # 📌 2. 왼쪽 사이드바 메뉴 (계층형 들여쓰기 구조)
+    # 📌 2. 왼쪽 사이드바 메뉴
     st.sidebar.header("카테고리 선택")
 
     for idx, main_cat in enumerate(categories):
         is_main_selected = (st.session_state.selected_main_cat == main_cat)
         btn_type = "primary" if is_main_selected else "secondary"
         
-        # 1차 대분류 버튼
+        # 1차 대분류 버튼 (볼드체 800 & 확대된 글씨 적용)
         if st.sidebar.button(main_cat, key=f"main_cat_{idx}", type=btn_type, use_container_width=True):
             st.session_state.selected_main_cat = main_cat
             st.session_state.selected_sub_cat = None # 대분류 클릭 시 소분류 초기화
             st.rerun()
 
-        # 2차 소분류 서브메뉴 (컬럼을 활용하여 구조적 들여쓰기 적용)
+        # 2차 소분류 서브메뉴 (대분류 클릭 시 연한 하늘색 박스로 노출)
         if is_main_selected and main_cat != "전체 카테고리" and sub_cat_col:
             sub_df = df[df[main_cat_col] == main_cat]
             sub_categories = [str(s).strip() for s in sub_df[sub_cat_col].unique() if str(s).strip()]
@@ -335,16 +340,13 @@ if not df.empty:
                 for sub_idx, sub_cat in enumerate(sub_categories):
                     is_sub_selected = (st.session_state.selected_sub_cat == sub_cat)
                     
-                    # [들여쓰기 인덴트 영역, 버튼 영역]
                     col_indent, col_btn = st.sidebar.columns([0.1, 0.9])
                     
                     with col_indent:
-                        # 소분류 연결 세로 라인 표시
                         st.markdown("<div class='sub-line'></div>", unsafe_allow_html=True)
                         
                     with col_btn:
                         sub_btn_type = "primary" if is_sub_selected else "secondary"
-                        # '└' 기호 없이 pure 소분류 명칭만 출력
                         if st.button(sub_cat, key=f"sub_cat_{idx}_{sub_idx}", type=sub_btn_type, use_container_width=True):
                             if is_sub_selected:
                                 st.session_state.selected_sub_cat = None
