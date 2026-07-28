@@ -30,7 +30,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 3. 레이아웃 고도화 CSS (대분류 폰트 크기 확대 & 강력한 볼드 적용)
+# 3. 레이아웃 고도화 CSS (대분류 볼드 유지 & 글자 크기 조절)
 st.markdown("""
     <style>
     /* Pretendard 폰트 전면 적용 */
@@ -81,9 +81,9 @@ st.markdown("""
         margin-bottom: 12px !important;
     }
 
-    /* 📌 1. 대분류 버튼 스타일 (폰트 크기 1.12rem 확대 & 볼드체 800 강조) */
+    /* 📌 1. 대분류 버튼 스타일 (볼드체 유지 + 폰트 크기 1.02rem으로 가독성 최적화) */
     section[data-testid="stSidebar"] > div div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"] > div[data-testid="stButton"] > button {
-        padding: 10px 10px !important;
+        padding: 9px 10px !important;
         margin-bottom: 3px !important;
         border-radius: 8px !important;
         border: 1px solid #CBD5E1 !important;
@@ -93,8 +93,8 @@ st.markdown("""
     }
 
     section[data-testid="stSidebar"] > div div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"] > div[data-testid="stButton"] > button p {
-        font-size: 1.12rem !important; /* 기존 1rem -> 1.12rem으로 크기 확대 */
-        font-weight: 800 !important;  /* 아주 두꺼운 볼드체 적용 */
+        font-size: 1.02rem !important; /* 글자 크기 1pt 축소로 정돈 */
+        font-weight: 700 !important;  /* 깔끔한 볼드체 유지 */
         text-align: center !important;
         width: 100% !important;
     }
@@ -123,7 +123,7 @@ st.markdown("""
         color: #0369A1 !important;
         border: 1px solid #7DD3FC !important;
         border-radius: 6px !important;
-        font-size: 0.95rem !important;
+        font-size: 0.93rem !important;
         font-weight: 700 !important;
         padding: 7px 8px !important;
         margin-bottom: 2px !important;
@@ -325,13 +325,13 @@ if not df.empty:
         is_main_selected = (st.session_state.selected_main_cat == main_cat)
         btn_type = "primary" if is_main_selected else "secondary"
         
-        # 1차 대분류 버튼 (볼드체 800 & 확대된 글씨 적용)
+        # 1차 대분류 버튼
         if st.sidebar.button(main_cat, key=f"main_cat_{idx}", type=btn_type, use_container_width=True):
             st.session_state.selected_main_cat = main_cat
             st.session_state.selected_sub_cat = None # 대분류 클릭 시 소분류 초기화
             st.rerun()
 
-        # 2차 소분류 서브메뉴 (대분류 클릭 시 연한 하늘색 박스로 노출)
+        # 2차 소분류 서브메뉴
         if is_main_selected and main_cat != "전체 카테고리" and sub_cat_col:
             sub_df = df[df[main_cat_col] == main_cat]
             sub_categories = [str(s).strip() for s in sub_df[sub_cat_col].unique() if str(s).strip()]
