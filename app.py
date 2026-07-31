@@ -80,7 +80,7 @@ st.markdown("""
         margin-bottom: 12px !important;
     }
 
-    /* 🔥 [핵심 수정] 대분류 버튼 (일반 버튼 + 팝오버 버튼) 안의 모든 텍스트를 클릭 안 했을 때도 100% 두껍게(볼드체 800) 강제 */
+    /* 🔥 대분류 버튼 (일반 버튼 + 팝오버 버튼) 안의 모든 텍스트를 클릭 안 했을 때도 100% 두껍게 강제 */
     section[data-testid="stSidebar"] button,
     section[data-testid="stSidebar"] button *,
     div[data-testid="stPopover"] button,
@@ -274,6 +274,7 @@ st.markdown("""
         font-weight: 700;
         color: #0369A1;
         margin-top: 12px;
+        line-height: 1.6;
     }
 
     .stSpinner > div {
@@ -290,7 +291,7 @@ st.title("🚕 BTX CS 응대 매뉴얼 검색")
 st.markdown("<p class='sub-description'>왼쪽 메뉴에서 대분류를 클릭하면 하위 소분류 목록이 팝업으로 나타납니다.</p>", unsafe_allow_html=True)
 
 # ⚠️ 구글 시트 CSV 주소 (채영님의 진짜 CSV 링크를 넣어주세요!)
-GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTLIy_47IhFOZPYjwTSyEBz1FzxROrC-rbo8Yx6SM_31EPynnoqL893SQbjzzAVnLGOdu28vXFDjsx2/pub?output=csv"
+GOOGLE_SHEET_CSV_URL = "여기에_구글시트_CSV_링크를_넣어주세요"
 
 @st.cache_data(ttl=10)
 def load_data():
@@ -321,6 +322,18 @@ def format_answer_sentences(text):
     text = re.sub(r'([.?!]|\)\.)\s+', r'\1<br>', text)
     return text
 
+# 🔥 텍스트 내의 URL만 추출해서 클릭 가능한 HTML 태그로 변환해주는 함수
+def format_related_links(text):
+    if not text:
+        return ""
+    text = str(text)
+    # 1. 텍스트 내의 http:// 또는 https:// 로 시작하는 주소를 찾아 <a> 태그(클릭 가능한 링크)로 씌움
+    url_pattern = re.compile(r'(https?://[^\s]+)')
+    text = url_pattern.sub(r"<a href='\1' target='_blank' style='color: #0284C7; font-weight: 800; text-decoration: underline;'>\1</a>", text)
+    # 2. 구글 시트에서의 줄바꿈 엔터를 <br> 태그로 변환하여 그대로 유지
+    text = text.replace('\n', '<br>')
+    return text
+
 if not df.empty:
     # 📌 1. 세션 상태 초기화
     if "selected_main_cat" not in st.session_state:
@@ -343,7 +356,7 @@ if not df.empty:
         unique_mains = [str(c).strip() for c in df[main_cat_col].unique() if str(c).strip()]
         categories.extend(unique_mains)
 
-    # 📌 2. 사이드바 메뉴
+    # 📌 2. 사이드바 (팝오버 레이어 메뉴 적용)
     st.sidebar.markdown("<p style='text-align: center; font-weight: 800; color: #003399; margin-bottom: 8px;'>카테고리</p>", unsafe_allow_html=True)
 
     for idx, main_cat in enumerate(categories):
@@ -482,10 +495,9 @@ if not df.empty:
                         formatted_form = format_answer_sentences(transfer_form)
                         st.markdown(f"<div class='form-box'><b>📋 이관 양식:</b><br>{formatted_form}</div>", unsafe_allow_html=True)
 
-                    # G열 관련 링크
+                    # 🔥 G열 관련 링크 (오류 수정 완료: 텍스트는 그대로 유지, 주소만 클릭 가능하게 변환)
                     if related_link and str(related_link).strip():
-                        raw_link = str(related_link).strip()
-                        full_url = raw_link if raw_link.startswith(("http://", "https://")) else f"https://{raw_link}"
-                        st.markdown(f"<div class='link-box'>🔗 <b>관련 링크:</b> <a href='{full_url}' target='_blank' style='color: #0284C7; font-weight: 800; text-decoration: underline;'>{raw_link} 바로가기</a></div>", unsafe_allow_html=True)
+                        formatted_link = format_related_links(related_link)
+                        st.markdown(f"<div class='link-box'>🔗 <b>관련 링크:</b><br>{formatted_link}</div>", unsafe_allow_html=True)
     else:
         st.warning("선택하신 카테고리 또는 검색어에 대한 결과가 없습니다.")
