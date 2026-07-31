@@ -291,7 +291,7 @@ st.title("🚕 BTX CS 응대 매뉴얼 검색")
 st.markdown("<p class='sub-description'>왼쪽 메뉴에서 대분류를 클릭하면 하위 소분류 목록이 팝업으로 나타납니다.</p>", unsafe_allow_html=True)
 
 # ⚠️ 구글 시트 CSV 주소 (채영님의 진짜 CSV 링크를 넣어주세요!)
-GOOGLE_SHEET_CSV_URL = "여기에_구글시트_CSV_링크를_넣어주세요"
+GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTLIy_47IhFOZPYjwTSyEBz1FzxROrC-rbo8Yx6SM_31EPynnoqL893SQbjzzAVnLGOdu28vXFDjsx2/pub?output=csv"
 
 @st.cache_data(ttl=10)
 def load_data():
